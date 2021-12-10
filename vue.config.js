@@ -36,6 +36,7 @@ module.exports = {
     //   warnings: false,
     //   errors: true
     // },
+    disableHostCheck: true,
     proxy: {
       '/': {
         target: 'http://8.129.184.103:8082',
@@ -52,6 +53,13 @@ module.exports = {
       alias: {
         '@': resolve('src')
       }
+    },
+    externals: {
+      'vue': 'Vue',
+      'vue-router': 'VueRouter',
+      'vuex': 'Vuex',
+      'element-ui': 'ELEMENT',
+      'axios': 'axios'
     }
   },
   chainWebpack(config) {
