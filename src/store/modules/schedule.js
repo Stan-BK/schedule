@@ -31,19 +31,19 @@ const actions = {
           resolve(data.schedule)
         })
           break
-        case 'class_name': getInfoByClassName(searchStr).then(response => {
+        case 'classes_name': getInfoByClassName(searchStr).then(response => {
           const { data } = response
-          resolve(data.schedule)
+          resolve(data)
         })
           break
-        case 'classroom_name': getInfoByClassroomName(searchStr).then(response => {
+        case 'scheduled_classroom': getInfoByClassroomName(searchStr).then(response => {
           const { data } = response
-          resolve(data.schedule)
+          resolve(data)
         })
           break
         case 'teacher_name': getInfoByTeacherName(searchStr).then(response => {
           const { data } = response
-          resolve(data.schedule)
+          resolve(data)
         })
           break
         case 'time': getInfoByTime(searchStr).then(response => {

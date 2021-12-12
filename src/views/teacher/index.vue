@@ -35,11 +35,13 @@
           :key="index"
           class="showListcontainer"
         >
-          <div v-show="index === curpage - 1" class="show">
+          <div v-show="index === curpage - 1">
             <el-table
               :data="item"
               border
-              style="width: 100%"
+              :style="{
+                width: 'fit-content'
+              }"
               :height="isHide ? 500 : 480"
             >
               <el-table-column prop="teacher_id" label="教师id" width="180" />
@@ -52,6 +54,7 @@
               <el-table-column
                 label="操作"
                 v-if="!!$store.state.user.user_role"
+                width="180"
               >
                 <template slot-scope="scope">
                   <el-button
@@ -374,5 +377,10 @@ export default {
   align-items: center;
   justify-content: center;
   color: #c0c4cc;
+}
+.centent-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

@@ -2,159 +2,221 @@
   <div class="schedule-container">
     <el-container>
       <el-header>
-        <el-row :gutter="24">
-          <el-col :span="4">
-            <el-select v-model="value" placeholder="请选择">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
+        <el-row :gutter="24" align="middle" type="flex">
+          <el-col :span="8">
+            <el-button-group>
+              <el-button
+                type="primary"
+                @click="dialogFormVisible = true"
+              >查询课表</el-button>
+            </el-button-group>
           </el-col>
           <el-col :span="8">
-            <el-input v-model="input" placeholder="请输入内容" clearable />
+            周数：<el-input-number v-model="week" :min="1" :max="22" @change="searchInfo" />
           </el-col>
-          <el-col :span="2">
-            <el-button type="primary" @click="searchInfo">搜索</el-button>
+          <el-col :span="8">
+            <div v-if="form.input">
+              <span class="identify">{{ form.input }}</span>
+              <span>{{ identify }}</span>
+            </div>
           </el-col>
-          <el-col :span="4">
-            <el-button @click="getschedule">显示全部</el-button>
-          </el-col>
-        </el-row>
-      </el-header>
+        </el-row></el-header>
       <el-main>
-        <el-pagination
-          :current-page.sync="curpage"
-          :page-size="20"
-          layout="prev, pager, next"
-          :total="total"
-          :hide-on-single-page="isHide"
-        />
-        <div
-          v-for="(item, index) in showList"
-          :key="index"
-          class="showListcontainer"
+        <el-table
+          :key="Date.now()"
+          :data="tableData"
+          border
+          style="width: 100%"
         >
-          <div v-show="index === curpage - 1" class="show">
-            <el-table
-              :data="item"
-              border
-              style="width: 100%"
-              :height="isHide ? 500 : 480"
-            >
-              <el-table-column prop="schedule_id" label="课程号" width="180" />
-              <el-table-column prop="class_name" label="课程名" width="180" />
-              <el-table-column prop="classroom_name" label="教室" width="180" />
-              <el-table-column prop="teacher_name" label="教师" width="180" />
-              <el-table-column prop="time" label="开课时间段" />
-            </el-table>
-          </div>
-        </div>
-        <div v-if="showList.length === 0" class="noData">
-          <h2>No Data</h2>
-        </div>
+          <el-table-column
+            prop="time"
+            label="课时"
+            width="180"
+          />
+          <el-table-column
+            prop="周1"
+            label="周一"
+            width="180"
+          >
+            <template slot-scope="scope">
+              <p>{{ takeCourse(scope) }}</p>
+              <p>{{ takeTeacherName(scope) }}</p>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="周2"
+            label="周二"
+          >
+            <template slot-scope="scope">
+              <p>{{ takeCourse(scope) }}</p>
+              <p>{{ takeTeacherName(scope) }}</p>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="周3"
+            label="周三"
+          >
+            <template slot-scope="scope">
+              <p>{{ takeCourse(scope) }}</p>
+              <p>{{ takeTeacherName(scope) }}</p>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="周4"
+            label="周四"
+          >
+            <template slot-scope="scope">
+              <p>{{ takeCourse(scope) }}</p>
+              <p>{{ takeTeacherName(scope) }}</p>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="周5"
+            label="周五"
+          >
+            <template slot-scope="scope">
+              <p>{{ takeCourse(scope) }}</p>
+              <p>{{ takeTeacherName(scope) }}</p>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-main>
     </el-container>
+    <el-dialog title="查询课表" :visible.sync="dialogFormVisible" width="350px" :center="true">
+      <el-form :model="form" :label-position="'left'">
+        <el-form-item label="查询类型" :label-width="formLabelWidth">
+          <el-select v-model="form.value" placeholder="请选择">
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="查询内容" :label-width="formLabelWidth">
+          <el-input v-model="form.input" autocomplete="off" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="searchInfo">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
 export default {
   data() {
     return {
-      curpage: 1,
-      total: 0,
       scheduleList: [],
-      showList: [],
-      value: "schedule_id",
-      input: "",
-      isHide: true,
+      formLabelWidth: '80px',
+      form: {
+        value: 'schedule_id',
+        input: ''
+      },
+      week: 1,
+      dialogFormVisible: false,
+      tableData: [],
       options: [
         {
-          value: "schedule_id",
-          label: "根据课程id查询",
+          value: 'schedule_id',
+          label: '根据课程id查询'
         },
         {
-          value: "class_name",
-          label: "根据班级查询",
+          value: 'classes_name',
+          label: '根据班级查询'
         },
         {
-          value: "classroom_name",
-          label: "根据教室查询",
+          value: 'scheduled_classroom',
+          label: '根据教室查询'
         },
         {
-          value: "teacher_name",
-          label: "根据教师查询",
+          value: 'teacher_name',
+          label: '根据教师查询'
         },
         {
-          value: "time",
-          label: "根据时间段查询",
-        },
-      ],
-    };
+          value: 'time',
+          label: '根据时间段查询'
+        }
+      ]
+    }
+  },
+  computed: {
+    identify() {
+      switch (this.form.value) {
+        case 'teacher_name': return ' 老师的课表'
+        case 'scheduled_classroom': return ' 课室的课表'
+        default: return ' 的课表'
+      }
+    }
   },
   created() {
-    this.initSchedule();
+    for (var i = 0; i < 5; i++) {
+      this.tableData[i] = {}
+      this.tableData[i]['time'] = `第${2 * i + 1}、${2 * i + 2}节课`
+    }
   },
   methods: {
-    initSchedule() {
-      this.$store.dispatch("schedule/getScheduleList").then((response) => {
-        this.scheduleList = response;
-        this.initShowList(response);
-      });
-    },
     searchInfo() {
-      var value = this.value;
-      var input = this.input.toString();
-      var searchStr = {};
-      searchStr[value] = input;
+      var tableData = JSON.parse(JSON.stringify(this.tableData))
+
+      var value = this.form.value
+      var input = this.form.input.toString()
+      var searchStr = {}
+      searchStr[value] = input
       var params = {
         type: value,
-        searchStr,
-      };
-      if (input === "") {
+        searchStr
+      }
+      if (input === '') {
         this.$message({
-          type: "warning",
-          message: "未填写查询内容",
-        });
-        return;
+          type: 'warning',
+          message: '未填写查询内容'
+        })
+        return
       }
-      this.$store.dispatch("schedule/searchInfo", params).then((response) => {
-        this.initShowList(response);
-      });
-    },
-    initShowList(content) {
-      this.showList = [];
-      var item = [];
-      if (!content) {
-        this.total = 0;
-        this.isHide = true;
-        return;
-      } else if (
-        Object.prototype.toString.call(content) === "[object Object]"
-      ) {
-        item.push(content);
-        this.showList.push(item);
-        this.total = item.length;
-        this.isHide = true;
-        return;
-      }
-      for (var i = 0; i < content.length; i++) {
-        if (i % 20 === 0 && i !== 0) {
-          this.showList.push(item);
-          item = [];
+      this.$store.dispatch('schedule/searchInfo', params).then((response) => {
+        var weekData = response.lists[1]['节数']
+        for (var i = 0; i < weekData.length; i++) {
+          this.generateData(weekData[i], String(i + 1), tableData) // 遍历工作日每天的课程
         }
-        item.push(content[i]);
-      }
-      if (item.length > 0) {
-        this.showList.push(item);
-      }
-      this.total = content.length;
-      this.isHide = false;
+        this.tableData = tableData
+      })
+      this.dialogFormVisible = false
     },
-  },
-};
+    generateData(data, day, tableData) {
+      var week = String(this.week)
+      for (var i in data) {
+        switch (i) {
+          case '第1,2节': tableData[0]['周' + day] = data[i].filter(item => {
+            return item.class_weeks.split('、').includes(week)
+          })[0]; break
+          case '第3,4节': tableData[1]['周' + day] = data[i].filter(item => {
+            return item.class_weeks.split('、').includes(week)
+          })[0]; break
+          case '第5,6节': tableData[2]['周' + day] = data[i].filter(item => {
+            return item.class_weeks.split('、').includes(week)
+          })[0]; break
+          case '第7,8节': tableData[3]['周' + day] = data[i].filter(item => {
+            return item.class_weeks.split('、').includes(week)
+          })[0]; break
+          case '第9,10节': tableData[4]['周' + day] = data[i].filter(item => {
+            return item.class_weeks.split('、').includes(week)
+          })[0]; break
+        }
+      }
+    },
+    takeCourse(scope) {
+      var property = scope.column.property
+      return scope.row[property] ? scope.row[property].course_name : ''
+    },
+    takeTeacherName(scope) {
+      var property = scope.column.property
+      return scope.row[property] ? scope.row[property].teacher_name : ''
+    }
+  }
+}
 </script>
 <style scoped>
 .schedule-container {
@@ -174,5 +236,8 @@ export default {
   align-items: center;
   justify-content: center;
   color: #c0c4cc;
+}
+.identify {
+  font-size: 1.2em;
 }
 </style>

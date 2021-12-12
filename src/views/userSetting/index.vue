@@ -51,7 +51,10 @@ export default {
       var formdata = new FormData();
       formdata.append("pictureFile", data);
       this.$store.dispatch("userSetting/updateInfo", formdata).then((data) => {
-        this.$message(data);
+        this.$message({
+          type: "success",
+          message: data
+        });
         this.$store.dispatch("user/getInfo");
       });
     },

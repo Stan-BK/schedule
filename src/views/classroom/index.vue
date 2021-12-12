@@ -16,7 +16,7 @@
               >
             </el-button-group>
           </el-col>
-          <el-col :span="2">
+          <el-col :span="2" v-if="!!$store.state.user.user_role">
             <el-tooltip
               v-if="disabledDelete === false"
               class="item"
@@ -53,26 +53,28 @@
           :key="index"
           class="showListcontainer"
         >
-          <div v-show="index === curpage - 1" class="show">
+          <div v-show="index === curpage - 1">
             <el-table
               :data="item"
+              :style="{
+                width: 'fit-content'
+              }"
               :height="isHide ? 500 : 480"
               border
-              style="width: 100%"
               @selection-change="classroomListChange"
             >
               <el-table-column prop="classroom_id" label="教室id" width="180" />
               <el-table-column
                 prop="classroom_name"
                 label="教室名"
-                width="180"
+                width="250"
               />
               <el-table-column
                 prop="classroom_count"
                 label="教室人数"
                 width="180"
               />
-              <el-table-column prop="classroom_status" label="教室状态">
+              <el-table-column prop="classroom_status" label="教室状态" width="180">
                 <template slot-scope="scope">
                   <el-button
                     v-if="scope.row.classroom_status === '空闲'"
@@ -99,7 +101,8 @@
                   >
                 </template>
               </el-table-column>
-              <el-table-column label="操作">
+              <el-table-column label="操作" v-if="!!$store.state.user.user_role" 
+                width="250">
                 <template slot-scope="scope">
                   <el-button
                     type="primary"
@@ -115,7 +118,7 @@
                   >
                 </template>
               </el-table-column>
-              <el-table-column type="selection" label="全选" width="55" />
+              <el-table-column type="selection" label="全选" width="55" v-if="!!$store.state.user.user_role"/>
             </el-table>
           </div>
         </div>

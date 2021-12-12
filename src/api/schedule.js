@@ -24,11 +24,11 @@ export function getInfoByClassName(data) {
   })
 }
 
-export function getInfoByClassroomName(data) {
+export function getInfoByClassroomName(params) {
   return request({
     url: '/schedule/web/selectByClassroomName',
     method: 'put',
-    data: qs.stringify(data)
+    params
   })
 }
 

@@ -3,18 +3,23 @@
     <el-container>
       <el-header>
         <el-row :gutter="20">
-          <el-col :span="6">
+          <el-col :span="4">
             <el-button-group>
-              <el-button>查询班级</el-button>
-              <el-button v-if="!!$store.state.user.user_role"
+              <el-button @click="queryFormShow = true">查询班级</el-button>
+              <el-button
+                @click="addFormShow = true"
+                v-if="!!$store.state.user.user_role"
                 >添加班级</el-button
               >
             </el-button-group>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="2">
             <el-button type="danger" v-if="!!$store.state.user.user_role"
               >删除班级</el-button
             >
+          </el-col>
+          <el-col :span="14">
+            <span style="opacity: 0">1</span>
           </el-col>
           <el-col :span="4">
             <p>当前班级数量：{{ $store.state.tb_class.classCount }}</p>
@@ -38,14 +43,16 @@
             <el-table
               :data="item"
               border
-              style="width: 100%"
+              :style="{
+                width: 'fit-content'
+              }"
               :height="isHide ? 500 : 480"
             >
-              <el-table-column prop="class_id" label="课程号" width="180" />
-              <el-table-column prop="class_name" label="课程名" width="180" />
-              <el-table-column prop="classroom_name" label="教室" width="180" />
-              <el-table-column prop="teacher_name" label="教师" width="180" />
-              <el-table-column prop="time" label="开课时间段" />
+              <el-table-column prop="class_id" label="班级id" width="180" />
+              <el-table-column prop="class_name" label="班级名" width="250" />
+              <el-table-column prop="class_profession" label="专业" width="250" />
+              <el-table-column prop="class_count" label="人数" width="180" />
+              <el-table-column prop="grade" label="年级" width="180" />
             </el-table>
           </div>
         </div>
@@ -54,6 +61,66 @@
         </div>
       </el-main>
     </el-container>
+    <el-dialog title="添加班级" :visible.sync="addFormShow" width="400px">
+      <el-form ref="addForm" :model="addForm" :rules="rules">
+        <el-form-item
+          label="班级代号"
+          :label-width="formLabelWidth"
+          required
+          prop="class_code"
+        >
+          <el-input v-model="addForm.class_code" autocomplete="off" />
+        </el-form-item>
+        <el-form-item
+          label="班级名"
+          :label-width="formLabelWidth"
+          required
+          prop="class_name"
+        >
+          <el-input v-model="addForm.class_name" autocomplete="off" />
+        </el-form-item>
+        <el-form-item
+          label="班级人数"
+          :label-width="formLabelWidth"
+          required
+          prop="class_count"
+        >
+          <el-input v-model="addForm.class_count" autocomplete="off" />
+        </el-form-item>
+        <el-form-item
+          label="专业"
+          :label-width="formLabelWidth"
+          required
+          prop="class_profession"
+        >
+          <el-input v-model="addForm.class_profession" tautocomplete="off" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelSubmit">取 消</el-button>
+        <el-button type="primary" @click="addClassroom('addForm')"
+          >确 定</el-button
+        >
+      </div>
+    </el-dialog>
+    <el-dialog title="查找班级" :visible.sync="queryFormShow" width="400px">
+      <el-form ref="queryForm" :model="queryForm" :rules="rules">
+        <el-form-item
+          label="班级id"
+          :label-width="formLabelWidth"
+          required
+          prop="classroom_id"
+        >
+          <el-input v-model="queryForm.classroom_id" autocomplete="off" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelSubmit">取 消</el-button>
+        <el-button type="primary" @click="selectByClassroomId('queryForm')"
+          >确 定</el-button
+        >
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -67,28 +134,35 @@ export default {
       value: "",
       input: "",
       isHide: true,
-      options: [
-        {
-          value: "class_id",
-          label: "根据课程id查询",
-        },
-        {
-          value: "class_name",
-          label: "根据班级查询",
-        },
-        {
-          value: "classroom_name",
-          label: "根据教室查询",
-        },
-        {
-          value: "teacher_name",
-          label: "根据教师查询",
-        },
-        {
-          value: "time",
-          label: "根据时间段查询",
-        },
-      ],
+      queryFormShow: false,
+      addFormShow: false,
+      addForm: {
+        class_code: "",
+        class_count: "",
+        class_name: "",
+        class_profession: "",
+        grade: ""
+      },
+      queryForm: {
+        class_id: ""
+      },
+      rules: {
+        class_id: [
+          { required: true, message: "请输入班级id", trigger: "blur" },
+        ],
+        class_count: [
+          { required: true, message: "请输入班级人数", trigger: "blur" },
+        ],
+        class_name: [
+          { required: true, message: "请输入班级名", trigger: "blur" },
+        ],
+        class_profession: [
+          { required: true, message: "请输入专业", trigger: "blur" },
+        ],
+        grade: [
+          { required: true, message: "请输入年级", trigger: "blur" },
+        ]
+      },
     };
   },
   created() {
@@ -150,6 +224,20 @@ export default {
       }
       this.total = content.length;
       this.isHide = false;
+    },
+    clearForm() {
+      this.addForm = {
+        class_code: "",
+        class_count: "",
+        class_name: "",
+        class_profession: "",
+        grade: ""
+      };
+    },
+    cancelSubmit() {
+      this.addFormShow = false;
+      this.queryFormShow = false
+      this.clearForm();
     },
   },
 };
