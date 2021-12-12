@@ -7,16 +7,16 @@
             <el-button-group>
               <el-button @click="queryFormShow = true">查询班级</el-button>
               <el-button
-                @click="addFormShow = true"
                 v-if="!!$store.state.user.user_role"
-                >添加班级</el-button
-              >
+                @click="addFormShow = true"
+              >添加班级</el-button>
             </el-button-group>
           </el-col>
           <el-col :span="2">
-            <el-button type="danger" v-if="!!$store.state.user.user_role"
-              >删除班级</el-button
-            >
+            <el-button
+              v-if="!!$store.state.user.user_role"
+              type="danger"
+            >删除班级</el-button>
           </el-col>
           <el-col :span="14">
             <span style="opacity: 0">1</span>
@@ -43,16 +43,17 @@
             <el-table
               :data="item"
               border
-              :style="{
-                width: 'fit-content'
+              :header-cell-style="{
+                textAlign: 'center'
+              }"
+              :cell-style="{
+                textAlign: 'center'
               }"
               :height="isHide ? 500 : 480"
             >
-              <el-table-column prop="class_id" label="班级id" width="180" />
-              <el-table-column prop="class_name" label="班级名" width="250" />
-              <el-table-column prop="class_profession" label="专业" width="250" />
-              <el-table-column prop="class_count" label="人数" width="180" />
-              <el-table-column prop="grade" label="年级" width="180" />
+              <el-table-column prop="class_id" label="班级id" />
+              <el-table-column prop="class_name" label="班级名" />
+              <el-table-column prop="class_count" label="人数" />
             </el-table>
           </div>
         </div>
@@ -98,9 +99,10 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancelSubmit">取 消</el-button>
-        <el-button type="primary" @click="addClassroom('addForm')"
-          >确 定</el-button
-        >
+        <el-button
+          type="primary"
+          @click="addClassroom('addForm')"
+        >确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="查找班级" :visible.sync="queryFormShow" width="400px">
@@ -116,9 +118,10 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancelSubmit">取 消</el-button>
-        <el-button type="primary" @click="selectByClassroomId('queryForm')"
-          >确 定</el-button
-        >
+        <el-button
+          type="primary"
+          @click="selectByClassroomId('queryForm')"
+        >确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -131,116 +134,116 @@ export default {
       total: 0,
       classList: [],
       showList: [],
-      value: "",
-      input: "",
+      value: '',
+      input: '',
       isHide: true,
       queryFormShow: false,
       addFormShow: false,
       addForm: {
-        class_code: "",
-        class_count: "",
-        class_name: "",
-        class_profession: "",
-        grade: ""
+        class_code: '',
+        class_count: '',
+        class_name: '',
+        class_profession: '',
+        grade: ''
       },
       queryForm: {
-        class_id: ""
+        class_id: ''
       },
       rules: {
         class_id: [
-          { required: true, message: "请输入班级id", trigger: "blur" },
+          { required: true, message: '请输入班级id', trigger: 'blur' }
         ],
         class_count: [
-          { required: true, message: "请输入班级人数", trigger: "blur" },
+          { required: true, message: '请输入班级人数', trigger: 'blur' }
         ],
         class_name: [
-          { required: true, message: "请输入班级名", trigger: "blur" },
+          { required: true, message: '请输入班级名', trigger: 'blur' }
         ],
         class_profession: [
-          { required: true, message: "请输入专业", trigger: "blur" },
+          { required: true, message: '请输入专业', trigger: 'blur' }
         ],
         grade: [
-          { required: true, message: "请输入年级", trigger: "blur" },
+          { required: true, message: '请输入年级', trigger: 'blur' }
         ]
-      },
-    };
+      }
+    }
   },
   created() {
-    this.initClass();
+    this.initClass()
   },
   methods: {
     initClass() {
-      this.$store.dispatch("tb_class/getClassList").then((response) => {
-        this.classList = response;
-        this.initShowList(response);
-      });
-      this.$store.dispatch("tb_class/getClassCount");
+      this.$store.dispatch('tb_class/getClassList').then((response) => {
+        this.classList = response
+        this.initShowList(response)
+      })
+      this.$store.dispatch('tb_class/getClassCount')
     },
     searchInfo() {
-      var value = this.value;
-      var input = this.input.toString();
-      var searchStr = {};
-      searchStr[value] = input;
+      var value = this.value
+      var input = this.input.toString()
+      var searchStr = {}
+      searchStr[value] = input
       var params = {
         type: value,
-        searchStr,
-      };
-      if (input === "") {
-        this.$message({
-          type: "warning",
-          message: "未填写查询内容",
-        });
-        return;
+        searchStr
       }
-      this.$store.dispatch("class/searchInfo", params).then((response) => {
-        this.initShowList(response);
-      });
+      if (input === '') {
+        this.$message({
+          type: 'warning',
+          message: '未填写查询内容'
+        })
+        return
+      }
+      this.$store.dispatch('class/searchInfo', params).then((response) => {
+        this.initShowList(response)
+      })
     },
     initShowList(content) {
-      this.showList = [];
-      var item = [];
+      this.showList = []
+      var item = []
       if (!content) {
-        this.total = 0;
-        this.isHide = true;
-        return;
+        this.total = 0
+        this.isHide = true
+        return
       } else if (
-        Object.prototype.toString.call(content) === "[object Object]"
+        Object.prototype.toString.call(content) === '[object Object]'
       ) {
-        item.push(content);
-        this.showList.push(item);
-        this.total = item.length;
-        this.isHide = true;
-        return;
+        item.push(content)
+        this.showList.push(item)
+        this.total = item.length
+        this.isHide = true
+        return
       }
       for (var i = 0; i < content.length; i++) {
         if (i % 20 === 0 && i !== 0) {
-          this.showList.push(item);
-          item = [];
+          this.showList.push(item)
+          item = []
         }
-        item.push(content[i]);
+        item.push(content[i])
       }
       if (item.length > 0) {
-        this.showList.push(item);
+        this.showList.push(item)
       }
-      this.total = content.length;
-      this.isHide = false;
+      this.total = content.length
+      this.isHide = false
     },
     clearForm() {
       this.addForm = {
-        class_code: "",
-        class_count: "",
-        class_name: "",
-        class_profession: "",
-        grade: ""
-      };
+        class_code: '',
+        class_count: '',
+        class_name: '',
+        class_profession: '',
+        grade: ''
+      }
     },
     cancelSubmit() {
-      this.addFormShow = false;
+      this.addFormShow = false
       this.queryFormShow = false
-      this.clearForm();
-    },
-  },
-};
+      this.clearForm()
+    }
+  }
+}
 </script>
 <style scoped>
 .tb-class-container {

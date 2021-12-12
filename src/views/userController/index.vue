@@ -5,10 +5,9 @@
         <el-row :gutter="24">
           <el-col :span="12">
             <el-button
-              @click="addFormShow = true"
               v-if="!!$store.state.user.user_role"
-              >注册新用户</el-button
-            >
+              @click="addFormShow = true"
+            >注册新用户</el-button>
           </el-col>
           <el-col :span="8">
             <span style="opacity: 0">1</span>
@@ -19,19 +18,28 @@
         </el-row>
       </el-header>
       <el-main>
-        <el-table :data="userList" height="500" border style="width: 100%">
-          <el-table-column prop="user_name" label="用户名" width="180" />
-          <el-table-column prop="user_role" label="用户权限" width="180" />
-          <el-table-column prop="user_phone" label="联系方式" />
+        <el-table
+          :data="userList"
+          height="500"
+          border
+          :header-cell-style="{
+            textAlign: 'center'
+          }"
+          :cell-style="{
+            textAlign: 'center'
+          }"
+        >
+          <el-table-column prop="user_name" label="用户名" width="200" />
+          <el-table-column prop="user_role" label="用户权限" width="200"/>
+          <el-table-column prop="user_phone" label="联系方式" width="250"/>
           <el-table-column prop="address" label="地址" />
-          <el-table-column label="操作" v-if="!!$store.state.user.user_role">
+          <el-table-column v-if="!!$store.state.user.user_role" label="操作" width="180">
             <template slot-scope="scope">
               <el-button
                 type="danger"
                 size="small"
                 @click="deleteUser(scope.row)"
-                >删除</el-button
-              >
+              >删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -101,152 +109,152 @@ export default {
       userList: [],
       addFormShow: false,
       addForm: {
-        user_name: "",
-        user_pwd: "",
-        user_confirmpwd: "",
-        user_role: "",
+        user_name: '',
+        user_pwd: '',
+        user_confirmpwd: '',
+        user_role: ''
       },
       options: [
         {
-          value: "1",
-          label: "普通用户",
+          value: '1',
+          label: '普通用户'
         },
         {
-          value: "2",
-          label: "管理员",
-        },
+          value: '2',
+          label: '管理员'
+        }
       ],
       rules: {
         user_name: [
-          { required: true, message: "请输入用户名", trigger: "blur" },
+          { required: true, message: '请输入用户名', trigger: 'blur' }
         ],
-        user_pwd: [{ required: true, message: "请输入密码", trigger: "blur" }],
+        user_pwd: [{ required: true, message: '请输入密码', trigger: 'blur' }],
         user_confirmpwd: [
-          { required: true, message: "请输入密码", trigger: "blur" },
+          { required: true, message: '请输入密码', trigger: 'blur' }
         ],
         user_role: [
-          { required: true, message: "请选择用户权限", trigger: "blur" },
-        ],
+          { required: true, message: '请选择用户权限', trigger: 'blur' }
+        ]
       },
-      formLabelWidth: "120px",
-    };
+      formLabelWidth: '120px'
+    }
   },
   created() {
-    this.initUserInfo();
+    this.initUserInfo()
   },
   methods: {
     initUserInfo() {
-      this.$store.dispatch("userController/getUserCount");
-      this.$store.dispatch("userController/getUserList").then((response) => {
-        this.userList = this.formatArr(response);
-      });
+      this.$store.dispatch('userController/getUserCount')
+      this.$store.dispatch('userController/getUserList').then((response) => {
+        this.userList = this.formatArr(response)
+      })
     },
     deleteUser(row) {
-      this.$confirm("确认删除?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
+      this.$confirm('确认删除?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
-          const { user_id } = row;
-          const _self = this;
+          const { user_id } = row
+          const _self = this
           const params = {
-            user_id,
-          };
+            user_id
+          }
           _self.$store
-            .dispatch("userController/deleteUser", params)
+            .dispatch('userController/deleteUser', params)
             .then(() => {
               _self.$message({
-                message: "删除成功",
-                type: "success",
-              });
-              _self.initUserInfo();
+                message: '删除成功',
+                type: 'success'
+              })
+              _self.initUserInfo()
             })
             .catch(() => {
               _self.$message({
-                message: "删除失败",
-                type: "error",
-              });
-            });
+                message: '删除失败',
+                type: 'error'
+              })
+            })
         })
         .catch(() => {
           this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
     },
     formatArr(arr) {
-      const _self = this;
-      var newArr = [];
+      const _self = this
+      var newArr = []
       newArr = arr.filter((elem) => {
         return (
           !elem.is_delete && elem.user_id !== _self.$store.state.user.user_id
-        );
-      });
+        )
+      })
       newArr.forEach((elem) => {
         switch (elem.user_role) {
           case 1:
-            elem.user_role = "普通用户";
-            break;
+            elem.user_role = '普通用户'
+            break
           case 2:
-            elem.user_role = "管理员";
-            break;
+            elem.user_role = '管理员'
+            break
           default:
-            break;
+            break
         }
         for (var i in elem) {
           if (elem[i] == null) {
-            elem[i] = "--未填写--";
+            elem[i] = '--未填写--'
           }
         }
-      });
-      return newArr;
+      })
+      return newArr
     },
     addUser(formName) {
-      const _self = this;
+      const _self = this
       _self.$refs[formName].validate((valid) => {
         if (valid) {
           const params = {
             user_name: _self.addForm.user_name,
             user_pwd: _self.addForm.user_pwd,
-            user_role: _self.addForm.user_role,
-          };
+            user_role: _self.addForm.user_role
+          }
           if (_self.addForm.user_pwd !== _self.addForm.user_confirmpwd) {
             _self.$message({
-              message: "两次输入密码不一致，请重新输入",
-              type: "error",
-            });
+              message: '两次输入密码不一致，请重新输入',
+              type: 'error'
+            })
           } else {
-            _self.$store.dispatch("userController/addUser", params).then(() => {
+            _self.$store.dispatch('userController/addUser', params).then(() => {
               _self.$message({
-                message: "添加成功",
-                type: "success",
-              });
-              _self.clearForm();
-              _self.initUserInfo();
-            });
-            _self.addFormShow = false;
+                message: '添加成功',
+                type: 'success'
+              })
+              _self.clearForm()
+              _self.initUserInfo()
+            })
+            _self.addFormShow = false
           }
         } else {
-          console.log("error submit!!");
+          console.log('error submit!!')
         }
-      });
+      })
     },
     clearForm() {
       this.addForm = {
-        user_name: "",
-        user_pwd: "",
-        user_confirmpwd: "",
-        user_role: "",
-      };
+        user_name: '',
+        user_pwd: '',
+        user_confirmpwd: '',
+        user_role: ''
+      }
     },
     cancelSubmit() {
-      this.addFormShow = false;
-      this.clearForm();
-    },
-  },
-};
+      this.addFormShow = false
+      this.clearForm()
+    }
+  }
+}
 </script>
 <style scoped>
 .user-controller-container {

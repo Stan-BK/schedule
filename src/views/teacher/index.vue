@@ -39,22 +39,23 @@
             <el-table
               :data="item"
               border
-              :style="{
-                width: 'fit-content'
+              :header-cell-style="{
+                textAlign: 'center'
+              }"
+              :cell-style="{
+                textAlign: 'center'
               }"
               :height="isHide ? 500 : 480"
             >
-              <el-table-column prop="teacher_id" label="教师id" width="180" />
-              <el-table-column prop="teacher_name" label="教师名" width="180" />
+              <el-table-column prop="teacher_id" label="教师id" />
+              <el-table-column prop="teacher_name" label="教师名" />
               <el-table-column
                 prop="teacher_category"
                 label="教师类型"
-                width="180"
               />
               <el-table-column
                 label="操作"
                 v-if="!!$store.state.user.user_role"
-                width="180"
               >
                 <template slot-scope="scope">
                   <el-button

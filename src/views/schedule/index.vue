@@ -15,8 +15,8 @@
             周数：<el-input-number v-model="week" :min="1" :max="22" @change="searchInfo" />
           </el-col>
           <el-col :span="8">
-            <div v-if="form.input">
-              <span class="identify">{{ form.input }}</span>
+            <div v-if="confirmForm.input">
+              <span class="identify">{{ confirmForm.input }}</span>
               <span>{{ identify }}</span>
             </div>
           </el-col>
@@ -27,6 +27,12 @@
           :data="tableData"
           border
           style="width: 100%"
+          :header-cell-style="{
+            textAlign: 'center'
+          }"
+          :cell-style="{
+            textAlign: 'center'
+          }"
         >
           <el-table-column
             prop="time"
@@ -36,11 +42,14 @@
           <el-table-column
             prop="周1"
             label="周一"
-            width="180"
           >
             <template slot-scope="scope">
-              <p>{{ takeCourse(scope) }}</p>
-              <p>{{ takeTeacherName(scope) }}</p>
+              <template v-if="hasProps(scope)">
+                <p><i class="fa fa-book" aria-hidden="true" /> {{ takeCourse(scope) }}</p>
+                <p v-if="confirmForm.value !== 'teacher_name'">{{ takeTeacherName(scope) }}</p>
+                <p v-if="confirmForm.value !== 'classes_name'">{{ takeClassName(scope) }}</p>
+                <p v-if="confirmForm.value !== 'scheduled_classroom'">{{ takeClassroom(scope) }}</p>
+              </template>
             </template>
           </el-table-column>
           <el-table-column
@@ -48,8 +57,12 @@
             label="周二"
           >
             <template slot-scope="scope">
-              <p>{{ takeCourse(scope) }}</p>
-              <p>{{ takeTeacherName(scope) }}</p>
+              <template v-if="hasProps(scope)">
+                <p><i class="fa fa-book" aria-hidden="true" /> {{ takeCourse(scope) }}</p>
+                <p v-if="confirmForm.value !== 'teacher_name'">{{ takeTeacherName(scope) }}</p>
+                <p v-if="confirmForm.value !== 'classes_name'">{{ takeClassName(scope) }}</p>
+                <p v-if="confirmForm.value !== 'scheduled_classroom'">{{ takeClassroom(scope) }}</p>
+              </template>
             </template>
           </el-table-column>
           <el-table-column
@@ -57,8 +70,12 @@
             label="周三"
           >
             <template slot-scope="scope">
-              <p>{{ takeCourse(scope) }}</p>
-              <p>{{ takeTeacherName(scope) }}</p>
+              <template v-if="hasProps(scope)">
+                <p><i class="fa fa-book" aria-hidden="true" /> {{ takeCourse(scope) }}</p>
+                <p v-if="confirmForm.value !== 'teacher_name'">{{ takeTeacherName(scope) }}</p>
+                <p v-if="confirmForm.value !== 'classes_name'">{{ takeClassName(scope) }}</p>
+                <p v-if="confirmForm.value !== 'scheduled_classroom'">{{ takeClassroom(scope) }}</p>
+              </template>
             </template>
           </el-table-column>
           <el-table-column
@@ -66,8 +83,12 @@
             label="周四"
           >
             <template slot-scope="scope">
-              <p>{{ takeCourse(scope) }}</p>
-              <p>{{ takeTeacherName(scope) }}</p>
+              <template v-if="hasProps(scope)">
+                <p><i class="fa fa-book" aria-hidden="true" /> {{ takeCourse(scope) }}</p>
+                <p v-if="confirmForm.value !== 'teacher_name'">{{ takeTeacherName(scope) }}</p>
+                <p v-if="confirmForm.value !== 'classes_name'">{{ takeClassName(scope) }}</p>
+                <p v-if="confirmForm.value !== 'scheduled_classroom'">{{ takeClassroom(scope) }}</p>
+              </template>
             </template>
           </el-table-column>
           <el-table-column
@@ -75,8 +96,12 @@
             label="周五"
           >
             <template slot-scope="scope">
-              <p>{{ takeCourse(scope) }}</p>
-              <p>{{ takeTeacherName(scope) }}</p>
+              <template v-if="hasProps(scope)">
+                <p><i class="fa fa-book" aria-hidden="true" /> {{ takeCourse(scope) }}</p>
+                <p v-if="confirmForm.value !== 'teacher_name'">{{ takeTeacherName(scope) }}</p>
+                <p v-if="confirmForm.value !== 'classes_name'">{{ takeClassName(scope) }}</p>
+                <p v-if="confirmForm.value !== 'scheduled_classroom'">{{ takeClassroom(scope) }}</p>
+              </template>
             </template>
           </el-table-column>
         </el-table>
@@ -112,17 +137,17 @@ export default {
       scheduleList: [],
       formLabelWidth: '80px',
       form: {
-        value: 'schedule_id',
+        value: 'classes_name',
+        input: ''
+      },
+      confirmForm: {
+        value: 'classes_name',
         input: ''
       },
       week: 1,
       dialogFormVisible: false,
       tableData: [],
       options: [
-        {
-          value: 'schedule_id',
-          label: '根据课程id查询'
-        },
         {
           value: 'classes_name',
           label: '根据班级查询'
@@ -134,17 +159,13 @@ export default {
         {
           value: 'teacher_name',
           label: '根据教师查询'
-        },
-        {
-          value: 'time',
-          label: '根据时间段查询'
         }
       ]
     }
   },
   computed: {
     identify() {
-      switch (this.form.value) {
+      switch (this.confirmForm.value) {
         case 'teacher_name': return ' 老师的课表'
         case 'scheduled_classroom': return ' 课室的课表'
         default: return ' 的课表'
@@ -163,6 +184,10 @@ export default {
 
       var value = this.form.value
       var input = this.form.input.toString()
+      this.confirmForm = {
+        value,
+        input
+      }
       var searchStr = {}
       searchStr[value] = input
       var params = {
@@ -207,6 +232,10 @@ export default {
         }
       }
     },
+    hasProps(scope) {
+      var property = scope.column.property
+      return !!scope.row[property]
+    },
     takeCourse(scope) {
       var property = scope.column.property
       return scope.row[property] ? scope.row[property].course_name : ''
@@ -214,6 +243,14 @@ export default {
     takeTeacherName(scope) {
       var property = scope.column.property
       return scope.row[property] ? scope.row[property].teacher_name : ''
+    },
+    takeClassName(scope) {
+      var property = scope.column.property
+      return scope.row[property] ? scope.row[property].classes_name : ''
+    },
+    takeClassroom(scope) {
+      var property = scope.column.property
+      return scope.row[property] ? 'b5-' + scope.row[property].scheduled_classroom : ''
     }
   }
 }
