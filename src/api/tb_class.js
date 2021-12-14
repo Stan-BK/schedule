@@ -13,3 +13,35 @@ export function getClassCount() {
     method: 'get'
   })
 }
+
+export function getClassInfo(params) {
+  return request({
+    url: '/tbclass/web/selectByLikeClassName',
+    method: 'put',
+    params
+  })
+}
+
+export function addClass(params) {
+  return request({
+    url: '/tbclass/web/addClass',
+    method: 'post',
+    params
+  })
+}
+
+export function updateClass(params) {
+  return request({
+    url: '/tbclass/web/updateClass',
+    method: 'put',
+    params
+  })
+}
+
+export function deleteClass(params) {
+  return request({
+    url: '/tbclass/web/deleteClass',
+    method: 'put',
+    params
+  })
+}

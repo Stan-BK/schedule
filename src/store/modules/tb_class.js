@@ -1,4 +1,4 @@
-import { getClassList, getClassCount } from '@/api/tb_class'
+import { getClassList, getClassCount, getClassInfo, addClass, updateClass, deleteClass } from '@/api/tb_class'
 
 const state = {
   classList: [],
@@ -30,6 +30,39 @@ const actions = {
         const { data } = response
         commit('SET_CLASSCOUNT', data.count)
         resolve()
+      })
+    })
+  },
+  getClassInfo({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      getClassInfo(params).then(response => {
+        const { data } = response
+        commit('SET_CLASS', data.tb_class)
+        resolve(data.tb_class)
+      })
+    })
+  },
+  addClass({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      addClass(params).then(response => {
+        const { data } = response
+        resolve(data.msg)
+      })
+    })
+  },
+  updateClass({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      updateClass(params).then(response => {
+        const { data } = response
+        resolve(data.msg)
+      })
+    })
+  },
+  deleteClass({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      deleteClass(params).then(response => {
+        const { data } = response
+        resolve(data.msg)
       })
     })
   }

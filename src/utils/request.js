@@ -61,7 +61,7 @@ service.interceptors.response.use(
         })
       } else if (res.code == 400) {
         Message({
-          message: "权限错误" || 'Error',
+          message: res.data.msg || 'Error',
           type: 'error',
           duration: 5 * 1000
         })

@@ -6,10 +6,9 @@
           <el-col :span="16">
             <el-button-group>
               <el-button
-                @click="addFormShow = true"
                 v-if="!!$store.state.user.user_role"
-                >添加教师信息</el-button
-              >
+                @click="addFormShow = true"
+              >添加教师信息</el-button>
               <el-button @click="queryFormShow = true">查找教师信息</el-button>
               <el-button @click="initShowList(teacherList)">显示全部</el-button>
             </el-button-group>
@@ -54,22 +53,20 @@
                 label="教师类型"
               />
               <el-table-column
-                label="操作"
                 v-if="!!$store.state.user.user_role"
+                label="操作"
               >
                 <template slot-scope="scope">
                   <el-button
                     type="primary"
                     size="small"
                     @click="showUpdateForm(scope.row)"
-                    >修改</el-button
-                  >
+                  >修改</el-button>
                   <el-button
                     type="danger"
                     size="small"
                     @click="deleteTeacher(scope.row)"
-                    >删除</el-button
-                  >
+                  >删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -96,9 +93,10 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="addFormShow = false">取 消</el-button>
-        <el-button type="primary" @click="addTeacher('addForm')"
-          >确 定</el-button
-        >
+        <el-button
+          type="primary"
+          @click="addTeacher('addForm')"
+        >确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog
@@ -121,9 +119,10 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="updateFormShow = false">取 消</el-button>
-        <el-button type="primary" @click="updateTeacher('updateForm')"
-          >确 定</el-button
-        >
+        <el-button
+          type="primary"
+          @click="updateTeacher('updateForm')"
+        >确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="查找教师信息" :visible.sync="queryFormShow" width="400px">
@@ -139,9 +138,10 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="queryFormShow = false">取 消</el-button>
-        <el-button type="primary" @click="queryTeacher('queryForm')"
-          >确 定</el-button
-        >
+        <el-button
+          type="primary"
+          @click="queryTeacher('queryForm')"
+        >确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -154,211 +154,211 @@ export default {
       total: 0,
       teacherList: [],
       showList: [],
-      value: "",
-      input: "",
+      value: '',
+      input: '',
       isHide: true,
       addFormShow: false,
       addForm: {
-        teacher_name: "",
-        teacher_category: "",
+        teacher_name: '',
+        teacher_category: ''
       },
       updateFormShow: false,
       updateForm: {
-        teacher_name: "",
-        teacher_category: "",
+        teacher_name: '',
+        teacher_category: ''
       },
       updateItem: -1,
       queryFormShow: false,
       queryForm: {
-        teacher_id: null,
+        teacher_id: null
       },
       rules: {
         teacher_name: [
-          { required: true, message: "请输入教师名称", trigger: "blur" },
+          { required: true, message: '请输入教师名称', trigger: 'blur' }
         ],
         teacher_id: [
-          { required: true, message: "请输入教师id", trigger: "blur" },
-        ],
+          { required: true, message: '请输入教师id', trigger: 'blur' }
+        ]
       },
-      formLabelWidth: "120px",
-    };
+      formLabelWidth: '120px'
+    }
   },
   created() {
-    this.initTeacher();
+    this.initTeacher()
   },
   methods: {
     initTeacher() {
-      this.$store.dispatch("teacher/getTeacherList").then((response) => {
+      this.$store.dispatch('teacher/getTeacherList').then((response) => {
         this.teacherList = response.filter((elem) => {
-          return elem.is_delete !== 1;
-        });
-        this.initShowList(this.teacherList);
-      });
-      this.$store.dispatch("teacher/getTeacherCount");
+          return elem.is_delete !== 1
+        })
+        this.initShowList(this.teacherList)
+      })
+      this.$store.dispatch('teacher/getTeacherCount')
     },
     searchInfo() {
-      var value = this.value;
-      var input = this.input.toString();
-      var searchStr = {};
-      searchStr[value] = input;
+      var value = this.value
+      var input = this.input.toString()
+      var searchStr = {}
+      searchStr[value] = input
       var params = {
         type: value,
-        searchStr,
-      };
-      if (input === "") {
-        this.$message({
-          type: "warning",
-          message: "未填写查询内容",
-        });
-        return;
+        searchStr
       }
-      this.$store.dispatch("class/searchInfo", params).then((response) => {
-        this.initShowList(response);
-      });
+      if (input === '') {
+        this.$message({
+          type: 'warning',
+          message: '未填写查询内容'
+        })
+        return
+      }
+      this.$store.dispatch('class/searchInfo', params).then((response) => {
+        this.initShowList(response)
+      })
     },
     addTeacher(formName) {
-      const _self = this;
+      const _self = this
       this.$refs[formName].validate((valid) => {
         if (valid) {
           const params = {
             teacher_name: _self.addForm.teacher_name,
-            teacher_category: _self.addForm.teacher_category,
-          };
+            teacher_category: _self.addForm.teacher_category
+          }
           _self.$store
-            .dispatch("teacher/addTeacher", params)
+            .dispatch('teacher/addTeacher', params)
             .then(() => {
               _self.$message({
-                message: "添加成功",
-                type: "success",
-              });
-              _self.getTeacher();
+                message: '添加成功',
+                type: 'success'
+              })
+              _self.getTeacher()
             })
             .catch((response) => {
               _self.$message({
                 message: response,
-                type: "error",
-              });
-            });
-          _self.addFormShow = false;
+                type: 'error'
+              })
+            })
+          _self.addFormShow = false
         }
-      });
+      })
     },
     deleteTeacher(row) {
-      this.$confirm("确认删除?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
+      this.$confirm('确认删除?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
-          const _self = this;
+          const _self = this
           const params = {
-            teacher_id: row.teacher_id,
-          };
+            teacher_id: row.teacher_id
+          }
           _self.$store
-            .dispatch("teacher/deleteTeacher", params)
+            .dispatch('teacher/deleteTeacher', params)
             .then(() => {
               _self.$message({
-                message: "删除成功",
-                type: "success",
-              });
-              _self.getTeacher();
+                message: '删除成功',
+                type: 'success'
+              })
+              _self.getTeacher()
             })
             .catch(() => {
               _self.$message({
-                type: "error",
-                message: "删除失败",
-              });
-            });
+                type: 'error',
+                message: '删除失败'
+              })
+            })
         })
         .catch(() => {
           this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
     },
     queryTeacher(formName) {
-      const _self = this;
+      const _self = this
       _self.$refs[formName].validate((valid) => {
         if (valid) {
           const params = {
-            teacher_id: _self.queryForm.teacher_id,
-          };
+            teacher_id: _self.queryForm.teacher_id
+          }
           _self.$store
-            .dispatch("teacher/selectByTeacherId", params)
+            .dispatch('teacher/selectByTeacherId', params)
             .then((response) => {
-              const res = [];
-              res.push(response);
-              console.log(res);
-              _self.initShowList(res);
+              const res = []
+              res.push(response)
+              console.log(res)
+              _self.initShowList(res)
             })
             .catch((response) => {
               _self.$message({
                 message: response,
-                type: "error",
-              });
-            });
-          _self.queryFormShow = false;
+                type: 'error'
+              })
+            })
+          _self.queryFormShow = false
         }
-      });
+      })
     },
     showUpdateForm(row) {
-      this.updateItem = row.teacher_id;
-      this.updateFormShow = true;
+      this.updateItem = row.teacher_id
+      this.updateFormShow = true
     },
     updateTeacher(formName) {
-      const _self = this;
+      const _self = this
       this.$refs[formName].validate((valid) => {
         if (valid) {
           const params = {
             teacher_id: _self.updateItem,
             teacher_name: _self.updateForm.teacher_name,
-            teacher_category: _self.updateForm.teacher_category,
-          };
-          _self.$store.dispatch("teacher/updateTeacher", params).then(() => {
-            _self.getTeacher();
-          });
-          _self.updateFormShow = false;
+            teacher_category: _self.updateForm.teacher_category
+          }
+          _self.$store.dispatch('teacher/updateTeacher', params).then(() => {
+            _self.getTeacher()
+          })
+          _self.updateFormShow = false
           _self.$message({
-            message: "修改成功",
-            type: "success",
-          });
+            message: '修改成功',
+            type: 'success'
+          })
         } else {
-          console.log("error submit!!");
+          console.log('error submit!!')
         }
-      });
+      })
     },
     initShowList(content) {
-      this.showList = [];
-      var item = [];
+      this.showList = []
+      var item = []
       if (!content) {
-        this.total = 0;
-        this.isHide = true;
-        return;
+        this.total = 0
+        this.isHide = true
+        return
       } else if (
-        Object.prototype.toString.call(content) === "[object Object]"
+        Object.prototype.toString.call(content) === '[object Object]'
       ) {
-        item.push(content);
-        this.showList.push(item);
-        this.total = item.length;
-        this.isHide = true;
-        return;
+        item.push(content)
+        this.showList.push(item)
+        this.total = item.length
+        this.isHide = true
+        return
       }
       for (var i = 0; i < content.length; i++) {
         if (i % 20 === 0 && i !== 0) {
-          this.showList.push(item);
-          item = [];
+          this.showList.push(item)
+          item = []
         }
-        item.push(content[i]);
+        item.push(content[i])
       }
       if (item.length > 0) {
-        this.showList.push(item);
+        this.showList.push(item)
       }
-      this.total = content.length;
-      this.isHide = false;
-    },
-  },
-};
+      this.total = content.length
+      if (this.total > 0) { this.isHide = false } else { this.isHide = true }
+    }
+  }
+}
 </script>
 <style scoped>
 .teacher-container {

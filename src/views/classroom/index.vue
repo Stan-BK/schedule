@@ -562,7 +562,10 @@ export default {
         this.showList.push(item)
       }
       this.total = content.length
-      this.isHide = false
+      if (this.total > 0) 
+        this.isHide = false
+      else
+        this.isHide = true
     }
   }
 }

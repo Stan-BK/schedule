@@ -3,7 +3,7 @@
     <el-container>
       <el-header>
         <el-row :gutter="20">
-          <el-col :span="4">
+          <el-col :span="6">
             <el-button-group>
               <el-button @click="queryFormShow = true">查询班级</el-button>
               <el-button
@@ -11,12 +11,6 @@
                 @click="addFormShow = true"
               >添加班级</el-button>
             </el-button-group>
-          </el-col>
-          <el-col :span="2">
-            <el-button
-              v-if="!!$store.state.user.user_role"
-              type="danger"
-            >删除班级</el-button>
           </el-col>
           <el-col :span="14">
             <span style="opacity: 0">1</span>
@@ -54,6 +48,23 @@
               <el-table-column prop="class_id" label="班级id" />
               <el-table-column prop="class_name" label="班级名" />
               <el-table-column prop="class_count" label="人数" />
+              <el-table-column
+                v-if="!!$store.state.user.user_role"
+                label="操作"
+              >
+                <template slot-scope="scope">
+                  <el-button
+                    type="primary"
+                    size="small"
+                    @click="showUpdateForm(scope.row)"
+                  >修改</el-button>
+                  <el-button
+                    type="danger"
+                    size="small"
+                    @click="deleteClass(scope.row)"
+                  >删除</el-button>
+                </template>
+              </el-table-column>
             </el-table>
           </div>
         </div>
@@ -64,14 +75,6 @@
     </el-container>
     <el-dialog title="添加班级" :visible.sync="addFormShow" width="400px">
       <el-form ref="addForm" :model="addForm" :rules="rules">
-        <el-form-item
-          label="班级代号"
-          :label-width="formLabelWidth"
-          required
-          prop="class_code"
-        >
-          <el-input v-model="addForm.class_code" autocomplete="off" />
-        </el-form-item>
         <el-form-item
           label="班级名"
           :label-width="formLabelWidth"
@@ -101,26 +104,61 @@
         <el-button @click="cancelSubmit">取 消</el-button>
         <el-button
           type="primary"
-          @click="addClassroom('addForm')"
+          @click="addClass()"
+        >确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="修改班级信息" :visible.sync="updateFormShow" width="400px">
+      <el-form :model="updateForm" :rules="rules">
+        <el-form-item
+          label="班级名"
+          :label-width="formLabelWidth"
+          required
+          prop="class_name"
+        >
+          <el-input v-model="updateForm.class_name" autocomplete="off" />
+        </el-form-item>
+        <el-form-item
+          label="班级人数"
+          :label-width="formLabelWidth"
+          required
+          prop="class_count"
+        >
+          <el-input v-model="updateForm.class_count" autocomplete="off" />
+        </el-form-item>
+        <el-form-item
+          label="专业"
+          :label-width="formLabelWidth"
+          required
+          prop="class_profession"
+        >
+          <el-input v-model="updateForm.class_profession" tautocomplete="off" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="updateFormShow = false">取 消</el-button>
+        <el-button
+          type="primary"
+          @click="updateClass()"
         >确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="查找班级" :visible.sync="queryFormShow" width="400px">
       <el-form ref="queryForm" :model="queryForm" :rules="rules">
         <el-form-item
-          label="班级id"
+          label="班级名"
           :label-width="formLabelWidth"
           required
-          prop="classroom_id"
+          prop="class_id"
         >
-          <el-input v-model="queryForm.classroom_id" autocomplete="off" />
+          <el-input v-model="queryForm.class_id" autocomplete="off" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancelSubmit">取 消</el-button>
+        <el-button @click="queryFormShow = false">取 消</el-button>
         <el-button
           type="primary"
-          @click="selectByClassroomId('queryForm')"
+          @click="searchInfo()"
         >确 定</el-button>
       </div>
     </el-dialog>
@@ -139,6 +177,7 @@ export default {
       isHide: true,
       queryFormShow: false,
       addFormShow: false,
+      updateFormShow: false,
       addForm: {
         class_code: '',
         class_count: '',
@@ -149,10 +188,12 @@ export default {
       queryForm: {
         class_id: ''
       },
+      updateForm: {
+        class_count: '',
+        class_name: '',
+        class_profession: ''
+      },
       rules: {
-        class_id: [
-          { required: true, message: '请输入班级id', trigger: 'blur' }
-        ],
         class_count: [
           { required: true, message: '请输入班级人数', trigger: 'blur' }
         ],
@@ -180,23 +221,66 @@ export default {
       this.$store.dispatch('tb_class/getClassCount')
     },
     searchInfo() {
-      var value = this.value
-      var input = this.input.toString()
-      var searchStr = {}
-      searchStr[value] = input
-      var params = {
-        type: value,
-        searchStr
-      }
-      if (input === '') {
+      var value = this.queryForm.class_id
+      var params = {}
+      params['class_name'] = value
+      if (value === '') {
         this.$message({
           type: 'warning',
           message: '未填写查询内容'
         })
         return
       }
-      this.$store.dispatch('class/searchInfo', params).then((response) => {
+      this.$store.dispatch('tb_class/getClassInfo', params).then((response) => {
         this.initShowList(response)
+      })
+      this.queryFormShow = false
+    },
+    addClass() {
+      const params = this.addForm
+      this.$store.dispatch('tb_class/addClass', params).then((response) => {
+        this.$message({
+          type: 'success',
+          message: response
+        })
+      })
+    },
+    updateClass() {
+      const params = this.updateForm
+      this.$store.dispatch('tb_class/updateClass', params).then(response => {
+        this.$message({
+          type: 'success',
+          message: response
+        })
+        this.initClass()
+      })
+      this.updateFormShow = false
+    },
+    showUpdateForm(info) {
+      this.updateForm = {
+        class_id: info.class_id,
+        class_count: info.class_count,
+        class_name: info.class_name,
+        class_profession: info.class_profession
+      }
+      this.updateFormShow = true
+    },
+    deleteClass(info) {
+      this.$confirm('确认删除?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const params = {
+          class_id: info.class_id
+        }
+        this.$store.dispatch('tb_class/deleteClass', params).then(response => {
+          this.$message({
+            message: response,
+            type: 'success'
+          })
+          this.initClass()
+        })
       })
     },
     initShowList(content) {
@@ -226,7 +310,7 @@ export default {
         this.showList.push(item)
       }
       this.total = content.length
-      this.isHide = false
+      if (this.total > 0) { this.isHide = false } else { this.isHide = true }
     },
     clearForm() {
       this.addForm = {
