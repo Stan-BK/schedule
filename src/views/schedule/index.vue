@@ -492,11 +492,11 @@ export default {
         if (valid) {
           if (this.cancelBtnShow) {
             this.deleteSchedule(true)
-            this.addSchedule(this.paikeForm)
+            this.addSchedule(true)
           } else {
             this.paikeForm.scheduled_classroom = this.confirmForm.input // 获取查询表单中的教室
             this.paikeForm.class_weeks = this.week
-            this.addSchedule()
+            this.addSchedule(false)
           }
         }
       })
@@ -541,7 +541,17 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.deleteSchedule()
+        this.deleteSchedule().then(data => {
+          this.$message({
+            type: 'success',
+            message: data
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '取消排课失败'
+          })
+        })
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -549,11 +559,11 @@ export default {
         })
       })
     },
-    addSchedule() {
+    addSchedule(isUpdate) {
       this.$store.dispatch('schedule/addSchedule', this.paikeForm).then(data => {
         this.$message({
           type: 'success',
-          message: data
+          message: isUpdate ? '修改成功' : '排课成功'
         })
         this.searchInfo(undefined, undefined, undefined, this.confirmForm)
         this.paikeFormShow = false
@@ -561,18 +571,17 @@ export default {
       })
     },
     deleteSchedule(isUpdate) {
-      const params = {
-        xiugaizhoushu: this.week,
-        schedule_id: this.paikeForm.schedule_id
-      }
-      this.$store.dispatch('schedule/deleteSchedule', params).then(data => {
-        this.$message({
-          type: 'success',
-          message: data
+      return new Promise((resolve, reject) => {
+        const params = {
+          xiugaizhoushu: this.week,
+          schedule_id: this.paikeForm.schedule_id
+        }
+        this.$store.dispatch('schedule/deleteSchedule', params).then(data => {
+          resolve(data)
+          !isUpdate && this.searchInfo(undefined, undefined, undefined, this.confirmForm) // 判断是否为更新排课，避免重复请求
+          this.paikeFormShow = false
+          this.cancelForm()
         })
-        !isUpdate && this.searchInfo(undefined, undefined, undefined, this.confirmForm) // 判断是否为更新排课，避免重复请求
-        this.paikeFormShow = false
-        this.cancelForm()
       })
     }
   }

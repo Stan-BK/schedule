@@ -68,9 +68,8 @@ const actions = {
   },
   addSchedule({ commit }, params) {
     return new Promise((resolve, reject) => {
-      addTiaoke(params).then(response => {
-        const { data } = response
-        resolve(data.msg)
+      addTiaoke(params).then(() => {
+        resolve('排课成功')
       })
     })
   }
