@@ -1,4 +1,4 @@
-import { getScheduleList, getInfoByClassId, getInfoByClassName, getInfoByClassroomName, getInfoByTeacherName, getInfoByTime } from '@/api/schedule'
+import { getScheduleList, getInfoByClassId, getInfoByClassName, getInfoByClassroomName, getInfoByTeacherName, getInfoByTime, tiaoke, addTiaoke } from '@/api/schedule'
 import { Message } from 'element-ui'
 
 const state = {
@@ -57,6 +57,21 @@ const actions = {
         })
           break
       }
+    })
+  },
+  deleteSchedule({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      tiaoke(params).then(() => {
+        resolve('取消排课成功')
+      })
+    })
+  },
+  addSchedule({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      addTiaoke(params).then(response => {
+        const { data } = response
+        resolve(data.msg)
+      })
     })
   }
 }

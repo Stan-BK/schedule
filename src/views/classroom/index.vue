@@ -11,7 +11,7 @@
               >添加新教室</el-button>
               <el-button @click="queryFormShow = true">查找教室信息</el-button>
               <el-button
-                @click="initShowList(classroomList)"
+                @click="showAll($event)"
               >显示全部</el-button>
             </el-button-group>
           </el-col>
@@ -535,7 +535,7 @@ export default {
     classroomListChange(val) {
       this.deleteArr = val
     },
-    initShowList(content) {
+    initShowList(content, cb) {
       this.showList = []
       var item = []
       if (!content) {
@@ -562,10 +562,22 @@ export default {
         this.showList.push(item)
       }
       this.total = content.length
-      if (this.total > 0) 
-        this.isHide = false
-      else
-        this.isHide = true
+      if (this.total > 0) { this.isHide = false } else { this.isHide = true }
+      cb && cb()
+    },
+    showAll(e) {
+      this.paikeStatus = !this.paikeStatus
+      if (e.target.nodeName === 'BUTTON') {
+        e.target.blur()
+      } else {
+        e.target.parentNode.blur()
+      }
+      this.initShowList(this.classroomList, () => {
+        this.$message({
+          type: 'success',
+          message: '已显示全部数据'
+        })
+      })
     }
   }
 }

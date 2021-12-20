@@ -10,7 +10,7 @@
                 @click="addFormShow = true"
               >添加教师信息</el-button>
               <el-button @click="queryFormShow = true">查找教师信息</el-button>
-              <el-button @click="initShowList(teacherList)">显示全部</el-button>
+              <el-button @click="showAll($event)">显示全部</el-button>
             </el-button-group>
           </el-col>
           <el-col :span="4">
@@ -304,6 +304,7 @@ export default {
     },
     showUpdateForm(row) {
       this.updateItem = row.teacher_id
+      this.updateForm.teacher_name = row.teacher_name
       this.updateFormShow = true
     },
     updateTeacher(formName) {
@@ -317,18 +318,18 @@ export default {
           }
           _self.$store.dispatch('teacher/updateTeacher', params).then(() => {
             _self.getTeacher()
+            _self.$message({
+              message: '修改成功',
+              type: 'success'
+            })
           })
           _self.updateFormShow = false
-          _self.$message({
-            message: '修改成功',
-            type: 'success'
-          })
         } else {
           console.log('error submit!!')
         }
       })
     },
-    initShowList(content) {
+    initShowList(content, cb) {
       this.showList = []
       var item = []
       if (!content) {
@@ -356,6 +357,21 @@ export default {
       }
       this.total = content.length
       if (this.total > 0) { this.isHide = false } else { this.isHide = true }
+      cb && cb()
+    },
+    showAll(e) {
+      this.paikeStatus = !this.paikeStatus
+      if (e.target.nodeName === 'BUTTON') {
+        e.target.blur()
+      } else {
+        e.target.parentNode.blur()
+      }
+      this.initShowList(this.teacherList, () => {
+        this.$message({
+          type: 'success',
+          message: '已显示全部数据'
+        })
+      })
     }
   }
 }

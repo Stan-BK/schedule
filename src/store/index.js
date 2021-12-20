@@ -10,6 +10,7 @@ import userController from './modules/userController'
 import teacher from './modules/teacher'
 import classroom from './modules/classroom'
 import userSetting from './modules/userSetting'
+import course from './modules/course'
 
 Vue.use(Vuex)
 
@@ -23,7 +24,8 @@ const store = new Vuex.Store({
     userController,
     teacher,
     classroom,
-    userSetting
+    userSetting,
+    course
   },
   getters
 })

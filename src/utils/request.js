@@ -65,6 +65,21 @@ service.interceptors.response.use(
           type: 'error',
           duration: 5 * 1000
         })
+      } else if (res.code == undefined) {
+        console.log(res) // 如axios请求中设置了responseType: 'blob', 则axios拦截器会将响应内容处理为blob对象
+        // var blob = new Blob([res], {                     // 如响应内容为二进制流，需手动转换为blob对象
+        //   type: 'application/msexcel;charset=utf-8'
+        // })
+        var downloadELement = document.createElement('a') //  创建a标签以提供点击下载资源
+        var href = window.URL.createObjectURL(res) // 创建一个指代File对象或Blob对象的URL
+        var name = Date.now()
+        downloadELement.href = href // 将URL挂载到a标签
+        downloadELement.download = `${name}.xls` // 使用a标签的download属性可以使a标签点击行为触发下载
+        document.body.appendChild(downloadELement)
+        downloadELement.click()
+        document.removeChild(downloadELement)
+        window.URL.revokeObjectURL(href)
+        return
       } else {
         Message({
           message: "服务器错误" || 'Error',

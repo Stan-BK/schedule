@@ -47,3 +47,20 @@ export function getInfoByTime(data) {
     data: qs.stringify(data)
   })
 }
+
+export function tiaoke(params) {
+  return request({
+    url: '/schedule/web/tiaoke',
+    method: 'post',
+    params
+  })
+}
+
+export function addTiaoke(params) {
+  return request({
+    url: '/schedule/web/addTiaoKe',
+    method: 'post',
+    params
+  })
+}
+

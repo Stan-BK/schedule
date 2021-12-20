@@ -6,9 +6,22 @@
           <el-col :span="8">
             <el-button-group>
               <el-button
-                type="primary"
-                @click="dialogFormVisible = true"
+                @click="queryFormShow = true"
               >查询课表</el-button>
+              <el-tooltip class="item" effect="dark" content="仅允许对教室课表进行排课" placement="top-start">
+                <div style="display: inline-block;">
+                  <el-button
+                    ref="btn"
+                    :style="{
+                      borderTopLeftRadius: 0,
+                      borderBottomLeftRadius: 0
+                    }"
+                    :type="paikeStatus ? 'info' : 'primary'"
+                    :disabled="confirmForm.value === 'scheduled_classroom' ? false : 'disabled'"
+                    @click="changePaikeStatus"
+                  >{{ paikeStatus ? '退出排课' : '开始排课' }}</el-button>
+                </div>
+              </el-tooltip>
             </el-button-group>
           </el-col>
           <el-col :span="8">
@@ -30,9 +43,9 @@
           :header-cell-style="{
             textAlign: 'center'
           }"
-          :cell-style="{
-            textAlign: 'center'
-          }"
+          :cell-style="isPaike"
+          :cell-class-name="isCellHover"
+          @cell-click="paike"
         >
           <el-table-column
             prop="time"
@@ -107,12 +120,12 @@
         </el-table>
       </el-main>
     </el-container>
-    <el-dialog title="查询课表" :visible.sync="dialogFormVisible" width="350px" :center="true">
-      <el-form :model="form" :label-position="'left'">
+    <el-dialog title="查询课表" :visible.sync="queryFormShow" width="350px" :center="true">
+      <el-form :model="queryForm" :label-position="'left'">
         <el-form-item label="查询类型" :label-width="formLabelWidth">
-          <el-select v-model="form.value" placeholder="请选择">
+          <el-select v-model="queryForm.value" placeholder="请选择" @change="queryForm.input = ''">
             <el-option
-              v-for="item in options"
+              v-for="item in query_options"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -120,12 +133,69 @@
           </el-select>
         </el-form-item>
         <el-form-item label="查询内容" :label-width="formLabelWidth">
-          <el-input v-model="form.input" autocomplete="off" />
+          <el-select v-model="queryForm.input" placeholder="请选择">
+            <el-option
+              v-for="item in current_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="cancelForm">取 消</el-button>
         <el-button type="primary" @click="searchInfo">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="排课" :visible.sync="paikeFormShow" width="350px" :center="true">
+      <el-form ref="paikeForm" :model="paikeForm" :label-position="'left'" :rules="rules">
+        <el-form-item label="课程名" :label-width="formLabelWidth" prop="course_name">
+          <el-select v-model="paikeForm.course_name" placeholder="请选择">
+            <el-option
+              v-for="item in course_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="班级名" :label-width="formLabelWidth" prop="classes_name">
+          <el-select v-model="paikeForm.classes_name" placeholder="请选择">
+            <el-option
+              v-for="item in class_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="时间段" :label-width="formLabelWidth" prop="number_sections">
+          <el-select v-if="!section" v-model="paikeForm.number_sections" placeholder="请选择">
+            <el-option
+              v-for="item in section_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+          <el-input v-else disabled :placeholder="section">{{ section }}</el-input>
+        </el-form-item>
+        <el-form-item label="教师名" :label-width="formLabelWidth" prop="teacher_name">
+          <el-select v-model="paikeForm.teacher_name" placeholder="请选择">
+            <el-option
+              v-for="item in teacher_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelForm">取 消</el-button>
+        <el-button v-if="cancelBtnShow" type="warning" @click="cancelPaike">取消排课</el-button>
+        <el-button type="primary" @click="confirmPaike('paikeForm')">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -136,7 +206,17 @@ export default {
     return {
       scheduleList: [],
       formLabelWidth: '80px',
-      form: {
+      paikeStatus: false,
+      week: 1, // 当前周数
+      queryFormShow: false,
+      paikeFormShow: false,
+      cancelBtnShow: false, // '取消排课'按钮的显示
+      tableData: [],
+      classroom_options: [],
+      course_options: [],
+      teacher_options: [],
+      class_options: [],
+      queryForm: {
         value: 'classes_name',
         input: ''
       },
@@ -144,10 +224,17 @@ export default {
         value: 'classes_name',
         input: ''
       },
-      week: 1,
-      dialogFormVisible: false,
-      tableData: [],
-      options: [
+      paikeForm: {
+        schedule_id: '',
+        class_weeks: '',
+        classes_name: '',
+        course_name: '',
+        number_sections: '',
+        scheduled_classroom: '',
+        teacher_name: '',
+        weeks: ''
+      },
+      query_options: [
         {
           value: 'classes_name',
           label: '根据班级查询'
@@ -160,7 +247,65 @@ export default {
           value: 'teacher_name',
           label: '根据教师查询'
         }
-      ]
+      ],
+      section_options: [
+        {
+          value: '1、2',
+          label: '第1、2节'
+        },
+        {
+          value: '3、4',
+          label: '第3、4节'
+        },
+        {
+          value: '5、6',
+          label: '第5、6节'
+        },
+        {
+          value: '7、8',
+          label: '第7、8节'
+        },
+        {
+          value: '9、10',
+          label: '第9、10节'
+        }
+      ],
+      week_options: [
+        {
+          value: '1',
+          label: '周一'
+        },
+        {
+          value: '2',
+          label: '周二'
+        },
+        {
+          value: '3',
+          label: '周三'
+        },
+        {
+          value: '4',
+          label: '周四'
+        },
+        {
+          value: '5',
+          label: '周五'
+        }
+      ],
+      rules: {
+        course_name: [
+          { required: true, message: '请选择课程名', trigger: 'blur' }
+        ],
+        classes_name: [
+          { required: true, message: '请选择班级名', trigger: 'blur' }
+        ],
+        number_sections: [
+          { required: true, message: '请选择时间段', trigger: 'blur' }
+        ],
+        teacher_name: [
+          { required: true, message: '请选择教师', trigger: 'blur' }
+        ]
+      }
     }
   },
   computed: {
@@ -170,6 +315,23 @@ export default {
         case 'scheduled_classroom': return ' 课室的课表'
         default: return ' 的课表'
       }
+    },
+    current_options() {
+      var obj = {
+        'teacher_name': 'teacher_options',
+        'scheduled_classroom': 'classroom_options',
+        'classes_name': 'class_options'
+      }
+      return this[obj[this.queryForm.value]]
+    },
+    section() { // 求得排课的时间段
+      var section = ''
+      this.section_options.forEach(item => {
+        if (item.value === this.paikeForm.number_sections) {
+          section = item.label
+        }
+      })
+      return section
     }
   },
   created() {
@@ -177,17 +339,48 @@ export default {
       this.tableData[i] = {}
       this.tableData[i]['time'] = `第${2 * i + 1}、${2 * i + 2}节课`
     }
+    this.$store.dispatch('course/getCourseList').then((response) => {
+      response.forEach(item => {
+        this.course_options.push({
+          value: item.course_name,
+          label: item.course_name
+        })
+      })
+    })
+    this.$store.dispatch('classroom/getClassroomList').then((response) => {
+      response.forEach(item => {
+        this.classroom_options.push({
+          value: item.classroom_address,
+          label: `${item.classroom_address}(${item.classroom_name})`
+        })
+      })
+    })
+    this.$store.dispatch('teacher/getTeacherList').then((response) => {
+      var teacherList = response.filter((elem) => {
+        return elem.is_delete !== 1
+      })
+      teacherList.forEach(item => {
+        this.teacher_options.push({
+          value: item.teacher_name,
+          label: item.teacher_name
+        })
+      })
+    })
+    this.$store.dispatch('tb_class/getClassList').then((response) => {
+      response.forEach(item => {
+        this.class_options.push({
+          value: item.class_name,
+          label: item.class_name
+        })
+      })
+    })
   },
   methods: {
-    searchInfo() {
+    searchInfo(event, oValue, nValue, form) {
       var tableData = JSON.parse(JSON.stringify(this.tableData))
-
-      var value = this.form.value
-      var input = this.form.input.toString()
-      this.confirmForm = {
-        value,
-        input
-      }
+      var queryForm = form || this.queryForm
+      var value = queryForm.value
+      var input = queryForm.input.toString()
       var searchStr = {}
       searchStr[value] = input
       var params = {
@@ -197,9 +390,13 @@ export default {
       if (input === '') {
         this.$message({
           type: 'warning',
-          message: '未填写查询内容'
+          message: '未确认查询内容'
         })
         return
+      }
+      this.confirmForm = {
+        value,
+        input
       }
       this.$store.dispatch('schedule/searchInfo', params).then((response) => {
         var weekData = response.lists[1]['节数']
@@ -208,7 +405,7 @@ export default {
         }
         this.tableData = tableData
       })
-      this.dialogFormVisible = false
+      this.queryFormShow = false
     },
     generateData(data, day, tableData) {
       var week = String(this.week)
@@ -232,6 +429,21 @@ export default {
         }
       }
     },
+    cancelForm() {
+      this.queryFormShow = false
+      this.queryForm.input = ''
+      this.paikeFormShow = false
+      this.paikeForm = {
+        schedule_id: '',
+        class_weeks: '',
+        classes_name: '',
+        course_name: '',
+        number_sections: '',
+        scheduled_classroom: '',
+        teacher_name: '',
+        weeks: ''
+      }
+    },
     hasProps(scope) {
       var property = scope.column.property
       return !!scope.row[property]
@@ -251,11 +463,123 @@ export default {
     takeClassroom(scope) {
       var property = scope.column.property
       return scope.row[property] ? 'b5-' + scope.row[property].scheduled_classroom : ''
+    },
+    paike(row, column) { // 处理排课逻辑
+      if (!this.paikeStatus) {
+        return
+      } else if (!this.confirmForm.input) {
+        this.$message({
+          type: 'warning',
+          message: '未确认查询内容'
+        })
+        return
+      }
+
+      this.paikeFormShow = true
+      var form = this.paikeForm
+      var item = row[column.property]
+      this.cancelBtnShow = !!item
+      for (var key in item) {
+        if (form.hasOwnProperty(key)) {
+          form[key] = item[key]
+        }
+      }
+      form.weeks = column.label.slice(1)
+      form.number_sections = row.time.slice(1).slice(0, 3)
+    },
+    confirmPaike(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          if (this.cancelBtnShow) {
+            this.deleteSchedule(true)
+            this.addSchedule(this.paikeForm)
+          } else {
+            this.paikeForm.scheduled_classroom = this.confirmForm.input // 获取查询表单中的教室
+            this.paikeForm.class_weeks = this.week
+            this.addSchedule()
+          }
+        }
+      })
+    },
+    changePaikeStatus() { // 切换排课状态
+      this.paikeStatus = !this.paikeStatus
+      if (this.paikeStatus === true) {
+        this.$message({
+          type: 'success',
+          message: '已进入排课状态'
+        })
+      } else {
+        this.$message({
+          type: 'info',
+          message: '已退出排课状态'
+        })
+      }
+    },
+    isPaike({ columnIndex }) { // 排课状态下单元格基础样式
+      if (this.paikeStatus && columnIndex > 0) {
+        return {
+          textAlign: 'center',
+          cursor: 'pointer',
+          background: '#fff'
+        }
+      }
+      return {
+        textAlign: 'center',
+        background: '#fff'
+      }
+    },
+    isCellHover({ columnIndex }) { // 排课状态下单元格悬停样式
+      if (columnIndex > 0) {
+        return this.paikeStatus ? 'hover' : ''
+      } else {
+        return ''
+      }
+    },
+    cancelPaike() {
+      this.$confirm('确认取消该课程安排?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteSchedule()
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '操作已取消'
+        })
+      })
+    },
+    addSchedule() {
+      this.$store.dispatch('schedule/addSchedule', this.paikeForm).then(data => {
+        this.$message({
+          type: 'success',
+          message: data
+        })
+        this.searchInfo(undefined, undefined, undefined, this.confirmForm)
+        this.paikeFormShow = false
+        this.cancelForm()
+      })
+    },
+    deleteSchedule(isUpdate) {
+      const params = {
+        xiugaizhoushu: this.week,
+        schedule_id: this.paikeForm.schedule_id
+      }
+      this.$store.dispatch('schedule/deleteSchedule', params).then(data => {
+        this.$message({
+          type: 'success',
+          message: data
+        })
+        !isUpdate && this.searchInfo(undefined, undefined, undefined, this.confirmForm) // 判断是否为更新排课，避免重复请求
+        this.paikeFormShow = false
+        this.cancelForm()
+      })
     }
   }
 }
 </script>
 <style scoped>
+@import '../../assets/table.css'; /* 引入外部css确保el-table的cell-class-name字段生效 */
 .schedule-container {
   padding: 20px;
 }
