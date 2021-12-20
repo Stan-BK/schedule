@@ -133,7 +133,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="查询内容" :label-width="formLabelWidth">
-          <el-select v-model="queryForm.input" placeholder="请选择">
+          <el-select v-model="queryForm.input" placeholder="请选择" filterable>
             <el-option
               v-for="item in current_options"
               :key="item.value"
@@ -151,7 +151,7 @@
     <el-dialog title="排课" :visible.sync="paikeFormShow" width="350px" :center="true">
       <el-form ref="paikeForm" :model="paikeForm" :label-position="'left'" :rules="rules">
         <el-form-item label="课程名" :label-width="formLabelWidth" prop="course_name">
-          <el-select v-model="paikeForm.course_name" placeholder="请选择">
+          <el-select v-model="paikeForm.course_name" placeholder="请选择" filterable>
             <el-option
               v-for="item in course_options"
               :key="item.value"
@@ -161,7 +161,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="班级名" :label-width="formLabelWidth" prop="classes_name">
-          <el-select v-model="paikeForm.classes_name" placeholder="请选择">
+          <el-select v-model="paikeForm.classes_name" placeholder="请选择" filterable>
             <el-option
               v-for="item in class_options"
               :key="item.value"
@@ -171,7 +171,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="时间段" :label-width="formLabelWidth" prop="number_sections">
-          <el-select v-if="!section" v-model="paikeForm.number_sections" placeholder="请选择">
+          <el-select v-if="!section" v-model="paikeForm.number_sections" placeholder="请选择" filterable>
             <el-option
               v-for="item in section_options"
               :key="item.value"
@@ -182,7 +182,7 @@
           <el-input v-else disabled :placeholder="section">{{ section }}</el-input>
         </el-form-item>
         <el-form-item label="教师名" :label-width="formLabelWidth" prop="teacher_name">
-          <el-select v-model="paikeForm.teacher_name" placeholder="请选择">
+          <el-select v-model="paikeForm.teacher_name" placeholder="请选择" filterable>
             <el-option
               v-for="item in teacher_options"
               :key="item.value"
