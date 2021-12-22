@@ -363,7 +363,6 @@ export default {
           }
         }
       })
-      console.log(section)
       return section
     }
   },
@@ -523,7 +522,6 @@ export default {
         }
       }
       form.weeks = column.label.slice(1)
-      console.log(form.weeks)
       form.number_sections = row.time.slice(1).slice(0, 3)
     },
     confirmPaike(formName) {
