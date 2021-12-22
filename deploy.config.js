@@ -7,6 +7,9 @@ module.exports = {
         COMMON_VARIABLE: 'true'
       },
       env_production: {
+        NODE_ENV: 'production'
+      },
+      env_development: {
         NODE_ENV: 'development'
       }
     }
@@ -20,7 +23,7 @@ module.exports = {
       repo: 'https://gitee.com/stan-bk/schedule.git',
       path: '/www/schedule/production',
       'pre-deploy': 'git fetch --all',
-      'post-deploy': 'npm install && npm run prd && pm2 startOrRestart deploy.config.js --env development'
+      'post-deploy': 'npm install && pm2 startOrRestart deploy.config.js --env development'
     }
   }
 }
