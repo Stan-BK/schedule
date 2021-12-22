@@ -25,7 +25,7 @@
             </el-button-group>
           </el-col>
           <el-col :span="8">
-            周数：<el-input-number v-model="week" :min="1" :max="22" @change="searchInfo" />
+            周数：<el-input-number v-model="week" :min="1" :max="22" @change="searchByWeek" />
           </el-col>
           <el-col :span="8">
             <div v-if="confirmForm.input">
@@ -170,6 +170,16 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="教师名" :label-width="formLabelWidth" prop="teacher_name">
+          <el-select v-model="paikeForm.teacher_name" placeholder="请选择" filterable>
+            <el-option
+              v-for="item in teacher_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="时间段" :label-width="formLabelWidth" prop="number_sections">
           <el-select v-if="!section" v-model="paikeForm.number_sections" placeholder="请选择" filterable>
             <el-option
@@ -179,12 +189,29 @@
               :value="item.value"
             />
           </el-select>
-          <el-input v-else disabled :placeholder="section">{{ section }}</el-input>
-        </el-form-item>
-        <el-form-item label="教师名" :label-width="formLabelWidth" prop="teacher_name">
-          <el-select v-model="paikeForm.teacher_name" placeholder="请选择" filterable>
+          <!-- 如果排课为空白项则固定其排课节数  -->
+          <el-select v-else :value="paikeForm.number_sections" disabled>
             <el-option
-              v-for="item in teacher_options"
+              v-for="item in section_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="工作日" :label-width="formLabelWidth" prop="weeks">
+          <el-select v-if="!section" v-model="paikeForm.weeks" placeholder="请选择" filterable>
+            <el-option
+              v-for="item in week_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+          <!-- 如果排课为空白项则固定其排课节数  -->
+          <el-select v-else :value="paikeForm.weeks" disabled>
+            <el-option
+              v-for="item in week_options"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -272,23 +299,23 @@ export default {
       ],
       week_options: [
         {
-          value: '1',
+          value: '一',
           label: '周一'
         },
         {
-          value: '2',
+          value: '二',
           label: '周二'
         },
         {
-          value: '3',
+          value: '三',
           label: '周三'
         },
         {
-          value: '4',
+          value: '四',
           label: '周四'
         },
         {
-          value: '5',
+          value: '五',
           label: '周五'
         }
       ],
@@ -303,6 +330,9 @@ export default {
           { required: true, message: '请选择时间段', trigger: 'blur' }
         ],
         teacher_name: [
+          { required: true, message: '请选择教师', trigger: 'blur' }
+        ],
+        weeks: [
           { required: true, message: '请选择教师', trigger: 'blur' }
         ]
       }
@@ -324,17 +354,21 @@ export default {
       }
       return this[obj[this.queryForm.value]]
     },
-    section() { // 求得排课的时间段
+    section() { // 求得排课的时间段,可同时用于排课表单中节数和工作日是否需要固定值的判断
       var section = ''
       this.section_options.forEach(item => {
         if (item.value === this.paikeForm.number_sections) {
-          section = item.label
+          if (!this.paikeForm.schedule_id) {
+            section = item.label
+          }
         }
       })
+      console.log(section)
       return section
     }
   },
   created() {
+    // 初始化展示表格及各类选项组（课程、教室等）
     for (var i = 0; i < 5; i++) {
       this.tableData[i] = {}
       this.tableData[i]['time'] = `第${2 * i + 1}、${2 * i + 2}节课`
@@ -404,6 +438,7 @@ export default {
           this.generateData(weekData[i], String(i + 1), tableData) // 遍历工作日每天的课程
         }
         this.tableData = tableData
+        this.cancelForm()
       })
       this.queryFormShow = false
     },
@@ -428,6 +463,9 @@ export default {
           })[0]; break
         }
       }
+    },
+    searchByWeek() { // 切换周数触发该事件
+      this.searchInfo(undefined, undefined, undefined, this.confirmForm)
     },
     cancelForm() {
       this.queryFormShow = false
@@ -476,7 +514,7 @@ export default {
       }
 
       this.paikeFormShow = true
-      var form = this.paikeForm
+      var form = this.paikeForm // 操作排课表单
       var item = row[column.property]
       this.cancelBtnShow = !!item
       for (var key in item) {
@@ -485,12 +523,13 @@ export default {
         }
       }
       form.weeks = column.label.slice(1)
+      console.log(form.weeks)
       form.number_sections = row.time.slice(1).slice(0, 3)
     },
     confirmPaike(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          if (this.cancelBtnShow) {
+          if (this.cancelBtnShow) { // 通过cancelBtnShow判断当前排课项初始是否为空白项
             this.deleteSchedule(true)
             this.addSchedule(true)
           } else {
@@ -499,6 +538,55 @@ export default {
             this.addSchedule(false)
           }
         }
+      })
+    },
+    cancelPaike() {
+      this.$confirm('确认取消该课程安排?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteSchedule().then(data => {
+          this.$message({
+            type: 'success',
+            message: data
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '取消排课失败'
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '操作已取消'
+        })
+      })
+    },
+    addSchedule(isUpdate) { // 添加排课记录
+      this.$store.dispatch('schedule/addSchedule', this.paikeForm).then(data => {
+        this.$message({
+          type: 'success',
+          message: isUpdate ? '修改成功' : '排课成功'
+        })
+        this.searchInfo(undefined, undefined, undefined, this.confirmForm)
+        this.paikeFormShow = false
+        this.cancelForm()
+      })
+    },
+    deleteSchedule(isUpdate) { // 删除排课记录
+      return new Promise((resolve, reject) => {
+        const params = {
+          xiugaizhoushu: this.week,
+          schedule_id: this.paikeForm.schedule_id
+        }
+        this.$store.dispatch('schedule/deleteSchedule', params).then(data => {
+          resolve(data)
+          !isUpdate && this.searchInfo(undefined, undefined, undefined, this.confirmForm) // 判断是否为更新排课，避免重复请求
+          this.paikeFormShow = false
+          this.cancelForm()
+        })
       })
     },
     changePaikeStatus() { // 切换排课状态
@@ -534,55 +622,6 @@ export default {
       } else {
         return ''
       }
-    },
-    cancelPaike() {
-      this.$confirm('确认取消该课程安排?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.deleteSchedule().then(data => {
-          this.$message({
-            type: 'success',
-            message: data
-          })
-        }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '取消排课失败'
-          })
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '操作已取消'
-        })
-      })
-    },
-    addSchedule(isUpdate) {
-      this.$store.dispatch('schedule/addSchedule', this.paikeForm).then(data => {
-        this.$message({
-          type: 'success',
-          message: isUpdate ? '修改成功' : '排课成功'
-        })
-        this.searchInfo(undefined, undefined, undefined, this.confirmForm)
-        this.paikeFormShow = false
-        this.cancelForm()
-      })
-    },
-    deleteSchedule(isUpdate) {
-      return new Promise((resolve, reject) => {
-        const params = {
-          xiugaizhoushu: this.week,
-          schedule_id: this.paikeForm.schedule_id
-        }
-        this.$store.dispatch('schedule/deleteSchedule', params).then(data => {
-          resolve(data)
-          !isUpdate && this.searchInfo(undefined, undefined, undefined, this.confirmForm) // 判断是否为更新排课，避免重复请求
-          this.paikeFormShow = false
-          this.cancelForm()
-        })
-      })
     }
   }
 }
