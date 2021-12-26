@@ -55,3 +55,10 @@ export function deleteClassroomList(params) {
   })
 }
 
+export function exportClassroom() {
+  return request({
+    url: '/classroom/web/exportClassroom',
+    method: 'post',
+    responseType: 'blob'
+  })
+}

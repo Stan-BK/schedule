@@ -3,7 +3,7 @@
     <el-container>
       <el-header>
         <el-row :gutter="24">
-          <el-col :span="16">
+          <el-col :span="8">
             <el-button-group>
               <el-button
                 v-if="!!$store.state.user.user_role"
@@ -14,6 +14,9 @@
             </el-button-group>
           </el-col>
           <el-col :span="4">
+            <el-button type="primary" @click="exportTeacher">导出教师</el-button>
+          </el-col>
+          <el-col :span="8">
             <span style="opacity: 0">1</span>
           </el-col>
           <el-col :span="4">
@@ -372,6 +375,9 @@ export default {
           message: '已显示全部数据'
         })
       })
+    },
+    exportTeacher() {
+      this.$store.dispatch('teacher/exportTeacher')
     }
   }
 }

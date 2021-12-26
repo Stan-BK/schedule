@@ -1,4 +1,4 @@
-import { getClassroomCount, getClassroomList, addClassroom, deleteClassroom, updateClassroom, selectByClassroomId, deleteClassroomList } from '@/api/classroom'
+import { getClassroomCount, getClassroomList, addClassroom, deleteClassroom, updateClassroom, selectByClassroomId, deleteClassroomList, exportClassroom } from '@/api/classroom'
 
 const state = {
   classroomCount: 0
@@ -71,6 +71,13 @@ const actions = {
         resolve(data.classroom)
       }).catch(() => {
         reject()
+      })
+    })
+  },
+  exportClassroom() {
+    return new Promise((resolve, reject) => {
+      exportClassroom().then(() => {
+        resolve()
       })
     })
   }

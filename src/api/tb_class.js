@@ -45,3 +45,11 @@ export function deleteClass(params) {
     params
   })
 }
+
+export function exportTbClass() {
+  return request({
+    url: '/tbclass/web/exportClass',
+    method: 'post',
+    responseType: 'blob'
+  })
+}

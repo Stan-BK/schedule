@@ -1,4 +1,4 @@
-import { getClassList, getClassCount, getClassInfo, addClass, updateClass, deleteClass } from '@/api/tb_class'
+import { getClassList, getClassCount, getClassInfo, addClass, updateClass, deleteClass, exportTbClass } from '@/api/tb_class'
 
 const state = {
   classList: [],
@@ -63,6 +63,13 @@ const actions = {
       deleteClass(params).then(response => {
         const { data } = response
         resolve(data.msg)
+      })
+    })
+  },
+  exportTbClass() {
+    return new Promise((resolve, reject) => {
+      exportTbClass().then(() => {
+        resolve()
       })
     })
   }

@@ -12,7 +12,10 @@
               >添加班级</el-button>
             </el-button-group>
           </el-col>
-          <el-col :span="14">
+          <el-col :span="4">
+            <el-button type="primary" @click="exportTbClass">导出班级</el-button>
+          </el-col>
+          <el-col :span="10">
             <span style="opacity: 0">1</span>
           </el-col>
           <el-col :span="4">
@@ -325,6 +328,9 @@ export default {
       this.addFormShow = false
       this.queryFormShow = false
       this.clearForm()
+    },
+    exportTbClass() {
+      this.$store.dispatch('tb_class/exportTbClass')
     }
   }
 }

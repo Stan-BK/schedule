@@ -46,3 +46,11 @@ export function selectByTeacherId(data) {
     data: qs.stringify(data)
   })
 }
+
+export function exportTeacher() {
+  return request({
+    url: '/teacher/web/exportTeacher',
+    method: 'post',
+    responseType: 'blob'
+  })
+}

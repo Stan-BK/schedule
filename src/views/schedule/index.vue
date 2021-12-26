@@ -295,6 +295,10 @@ export default {
         {
           value: '9、10',
           label: '第9、10节'
+        },
+        {
+          value: '11、12',
+          label: '第11、12节'
         }
       ],
       week_options: [
@@ -368,7 +372,7 @@ export default {
   },
   created() {
     // 初始化展示表格及各类选项组（课程、教室等）
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 6; i++) {
       this.tableData[i] = {}
       this.tableData[i]['time'] = `第${2 * i + 1}、${2 * i + 2}节课`
     }
@@ -460,6 +464,9 @@ export default {
           case '第9,10节': tableData[4]['周' + day] = data[i].filter(item => {
             return item.class_weeks.split('、').includes(week)
           })[0]; break
+          case '第11,12节': tableData[5]['周' + day] = data[i].filter(item => {
+            return item.class_weeks.split('、').includes(week)
+          })[0]; break
         }
       }
     },
@@ -514,6 +521,7 @@ export default {
 
       this.paikeFormShow = true
       var form = this.paikeForm // 操作排课表单
+      var timeReg = /(\d+、\d+)/
       var item = row[column.property]
       this.cancelBtnShow = !!item
       for (var key in item) {
@@ -522,7 +530,7 @@ export default {
         }
       }
       form.weeks = column.label.slice(1)
-      form.number_sections = row.time.slice(1).slice(0, 3)
+      form.number_sections = row.time.match(timeReg)[0]
     },
     confirmPaike(formName) {
       this.$refs[formName].validate((valid) => {

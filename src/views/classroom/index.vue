@@ -15,6 +15,9 @@
               >显示全部</el-button>
             </el-button-group>
           </el-col>
+          <el-col :span="4">
+            <el-button type="primary" @click="exportClassroom">导出教室</el-button>
+          </el-col>
           <el-col v-if="!!$store.state.user.user_role" :span="2">
             <el-tooltip
               v-if="disabledDelete === false"
@@ -33,7 +36,7 @@
               @click="deleteClassroomList"
             >删除多项</el-button>
           </el-col>
-          <el-col :span="10">
+          <el-col :span="6">
             <span style="opacity: 0">1</span>
           </el-col>
           <el-col :span="4">
@@ -518,6 +521,9 @@ export default {
           message: '已显示全部数据'
         })
       })
+    },
+    exportClassroom() {
+      this.$store.dispatch('classroom/exportClassroom')
     }
   }
 }
