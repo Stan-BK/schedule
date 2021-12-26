@@ -51,6 +51,7 @@ export function deleteClassroomList(params) {
   return request({
     url: '/classroom/web/deleteClassroomList',
     method: 'get',
-    params
+    params: qs.stringify(params['arr'], { arrayFormat: 'repeat' })
   })
 }
+

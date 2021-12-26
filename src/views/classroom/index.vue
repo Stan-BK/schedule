@@ -76,31 +76,6 @@
                 prop="classroom_count"
                 label="教室人数"
               />
-              <el-table-column prop="classroom_status" label="教室状态">
-                <template slot-scope="scope">
-                  <el-button
-                    v-if="scope.row.classroom_status === '空闲'"
-                    style="
-                      background-color: #67c23a;
-                      color: #fff;
-                      width: 68px;
-                      border-radius: 6px;
-                    "
-                    size="small"
-                    disabled
-                  >{{ scope.row.classroom_status }}</el-button>
-                  <el-button
-                    v-else
-                    style="
-                      background-color: #e6a23c;
-                      color: #fff;
-                      border-radius: 6px;
-                    "
-                    size="small"
-                    disabled
-                  >{{ scope.row.classroom_status }}</el-button>
-                </template>
-              </el-table-column>
               <el-table-column
                 v-if="!!$store.state.user.user_role"
                 label="操作"
@@ -145,21 +120,6 @@
         >
           <el-input v-model="addForm.classroom_count" tautocomplete="off" />
         </el-form-item>
-        <el-form-item
-          label="教室状态"
-          :label-width="formLabelWidth"
-          required
-          prop="classroom_status"
-        >
-          <el-select v-model="addForm.classroom_status" placeholder="请选择">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancelSubmit">取 消</el-button>
@@ -190,21 +150,6 @@
           prop="classroom_count"
         >
           <el-input v-model="updateForm.classroom_count" tautocomplete="off" />
-        </el-form-item>
-        <el-form-item
-          label="教室状态"
-          :label-width="formLabelWidth"
-          required
-          prop="classroom_status"
-        >
-          <el-select v-model="updateForm.classroom_status" placeholder="请选择">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -253,13 +198,11 @@ export default {
       updateItem: -1,
       addForm: {
         classroom_count: '',
-        classroom_name: '',
-        classroom_status: ''
+        classroom_name: ''
       },
       updateForm: {
         classroom_count: '',
-        classroom_name: '',
-        classroom_status: ''
+        classroom_name: ''
       },
       queryForm: {
         classroom_id: ''
@@ -273,9 +216,6 @@ export default {
         ],
         classroom_name: [
           { required: true, message: '请输入教室名', trigger: 'blur' }
-        ],
-        classroom_status: [
-          { required: true, message: '请输入教室状态', trigger: 'blur' }
         ]
       },
       options: [
@@ -353,36 +293,36 @@ export default {
         return prev
       }, [])
       console.log(arr)
-      // this.$confirm("确认删除多项?", "提示", {
-      //   confirmButtonText: "确定",
-      //   cancelButtonText: "取消",
-      //   type: "warning",
-      // })
-      //   .then(() => {
-      //     const params = {
-      //       arr,
-      //     };
-      //     this.$store
-      //       .dispatch("classroom/deleteClassroomList", params)
-      //       .then(() => {
-      //         this.$message({
-      //           type: "success",
-      //           message: "删除成功",
-      //         });
-      //       })
-      //       .catch(() => {
-      //         this.$message({
-      //           type: "error",
-      //           message: "删除失败",
-      //         });
-      //       });
-      //   })
-      //   .catch(() => {
-      //     this.$message({
-      //       type: "info",
-      //       message: "已取消删除",
-      //     });
-      //   });
+      this.$confirm('确认删除多项?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          const params = {
+            arr: arr
+          }
+          this.$store
+            .dispatch('classroom/deleteClassroomList', params)
+            .then(() => {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+            })
+            .catch(() => {
+              this.$message({
+                type: 'error',
+                message: '删除失败'
+              })
+            })
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
     },
     formatArr(arr) {
       const _self = this

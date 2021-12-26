@@ -432,7 +432,7 @@ export default {
         input
       }
       this.$store.dispatch('schedule/searchInfo', params).then((response) => {
-        var weekData = response.lists[1]['节数']
+        var weekData = response.lists[0]['节数'] // 根据后端传回数据格式获取
         for (var i = 0; i < weekData.length; i++) {
           this.generateData(weekData[i], String(i + 1), tableData) // 遍历工作日每天的课程
         }
