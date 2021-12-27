@@ -16,7 +16,7 @@
             </el-button-group>
           </el-col>
           <el-col :span="4">
-            <el-button type="primary" @click="exportClassroom">导出教室</el-button>
+            <el-button type="primary" @click="exportClassroom">导出教室信息</el-button>
           </el-col>
           <el-col v-if="!!$store.state.user.user_role" :span="2">
             <el-tooltip

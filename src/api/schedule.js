@@ -64,3 +64,29 @@ export function addTiaoke(params) {
   })
 }
 
+export function exportScheduleByClass(params) {
+  return request({
+    url: '/schedule/web/exportExcelByClass',
+    method: 'post',
+    params,
+    responseType: 'blob'
+  })
+}
+
+export function exportScheduleByClassroom(params) {
+  return request({
+    url: '/schedule/web/exportExcelByClassroom',
+    method: 'post',
+    params,
+    responseType: 'blob'
+  })
+}
+
+export function exportScheduleByTeacher(params) {
+  return request({
+    url: '/schedule/web/exportExcelByTeacher_name',
+    method: 'post',
+    params,
+    responseType: 'blob'
+  })
+}

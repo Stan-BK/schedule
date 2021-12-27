@@ -3,15 +3,14 @@
     <el-container>
       <el-header>
         <el-row :gutter="24" align="middle" type="flex">
-          <el-col :span="8">
+          <el-col :span="5">
             <el-button-group>
               <el-button
                 @click="queryFormShow = true"
               >查询课表</el-button>
-              <el-tooltip class="item" effect="dark" content="仅允许对教室课表进行排课" placement="top-start">
+              <el-tooltip class="item" effect="dark" :disabled="confirmForm.value === 'scheduled_classroom'" content="仅允许对教室课表进行排课" placement="top-start">
                 <div style="display: inline-block;">
                   <el-button
-                    ref="btn"
                     :style="{
                       borderTopLeftRadius: 0,
                       borderBottomLeftRadius: 0
@@ -23,6 +22,16 @@
                 </div>
               </el-tooltip>
             </el-button-group>
+          </el-col>
+          <el-col :span="3">
+            <el-tooltip class="item" effect="dark" :disabled="!!confirmForm.input" content="请先查询课表" placement="top-start">
+              <div style="display: inline-block;">
+                <el-button
+                  :disabled="!confirmForm.input"
+                  @click="exportSchedule"
+                >导出课表</el-button>
+              </div>
+            </el-tooltip>
           </el-col>
           <el-col :span="8">
             周数：<el-input-number v-model="week" :min="1" :max="22" @change="searchByWeek" />
@@ -431,10 +440,8 @@ export default {
         })
         return
       }
-      this.confirmForm = {
-        value,
-        input
-      }
+      this.confirmForm.value = value
+      this.confirmForm.input = input
       this.$store.dispatch('schedule/searchInfo', params).then((response) => {
         var weekData = response.lists[0]['节数'] // 根据后端传回数据格式获取
         for (var i = 0; i < weekData.length; i++) {
@@ -506,7 +513,7 @@ export default {
     },
     takeClassroom(scope) {
       var property = scope.column.property
-      return scope.row[property] ? 'b5-' + scope.row[property].scheduled_classroom : ''
+      return scope.row[property] ? scope.row[property].scheduled_classroom : ''
     },
     paike(row, column) { // 处理排课逻辑
       if (!this.paikeStatus) {
@@ -628,6 +635,13 @@ export default {
       } else {
         return ''
       }
+    },
+    exportSchedule() {
+      const params = {
+        str: this.confirmForm.value,
+        value: this.confirmForm.input
+      }
+      this.$store.dispatch('schedule/exportSchedule', params)
     }
   }
 }

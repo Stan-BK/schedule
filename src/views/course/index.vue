@@ -16,7 +16,7 @@
             </el-button-group>
           </el-col>
           <el-col :span="4">
-            <el-button type="primary" @click="exportCourse">导出课程</el-button>
+            <el-button type="primary" @click="exportCourse">导出课程信息</el-button>
           </el-col>
           <el-col :span="6">
             <span style="opacity: 0">1</span>
