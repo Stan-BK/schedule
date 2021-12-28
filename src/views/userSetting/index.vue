@@ -1,6 +1,9 @@
 <template>
   <div class="user-setting-container">
     <el-form :model="form" class="demo-form-inline" label-position="top">
+      <el-form-item label="头像">
+        <my-avatar @upload="uploadImg" />
+      </el-form-item>
       <el-form-item label="用户名">
         <el-row :gutter="20">
           <el-col :span="4">
@@ -8,82 +11,186 @@
               v-model="form.user_name"
               placeholder="username"
               disabled
-            ></el-input
-          ></el-col>
+            />
+          </el-col>
           <el-col :span="4">
-            <el-button @click="changeUserName">修改用户名</el-button>
-          </el-col></el-row
-        >
+            <el-button @click="updateInfo('user_name')">修改用户名</el-button>
+          </el-col>
+        </el-row>
       </el-form-item>
-      <el-form-item label="联系电话">
-        <el-select v-model="form.user_phone" placeholder="活动区域">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
-        </el-select>
+      <el-form-item label="联系方式">
+        <el-row :gutter="20">
+          <el-col :span="5">
+            <el-input
+              v-model="form.user_phone"
+              placeholder="user_phone"
+              disabled
+            />
+          </el-col>
+          <el-col :span="4">
+            <el-button @click="updateInfo('user_phone')">修改联系方式</el-button>
+          </el-col>
+        </el-row>
       </el-form-item>
-      <el-form-item label="头像">
-        <my-avatar @upload="uploadImg"></my-avatar>
+      <el-form-item label="地址">
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <el-input
+              v-model="form.address"
+              placeholder="address"
+              disabled
+            />
+          </el-col>
+          <el-col :span="4">
+            <el-button @click="updateInfo('address')">修改地址</el-button>
+          </el-col>
+        </el-row>
+      </el-form-item>
+      <el-form-item label="密码">
+        <el-row :gutter="20">
+          <el-col :span="4">
+            <el-input
+              v-model="form.user_pwd"
+              placeholder="user_pwd"
+              disabled
+              :type="'password'"
+            />
+          </el-col>
+          <el-col :span="4">
+            <el-button type="warning" @click="pwdVisible = true">修改密码</el-button>
+          </el-col>
+        </el-row>
       </el-form-item>
     </el-form>
+    <el-dialog :close-on-click-modal="false" title="修改密码" :visible.sync="pwdVisible" width="400px">
+      <el-form ref="pwd" :model="form" :rules="rules">
+        <el-form-item label="密码" :label-width="formLabelWidth" prop="user_pwd">
+          <el-input
+            v-model="form.user_pwd"
+            placeholder="请输入密码"
+            show-password
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelForm">取 消</el-button>
+        <el-button type="primary" @click="updatePwd">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
-import MyAvatar from "./avatar.vue";
+import MyAvatar from './avatar.vue'
 
 export default {
   components: {
-    MyAvatar,
+    MyAvatar
   },
   data() {
     return {
       form: {},
-    };
+      options: {
+        'user_name': '用户名',
+        'user_phone': '联系方式',
+        'address': '地址'
+      },
+      pwdVisible: false,
+      rules: {
+        user_pwd: [
+          { required: true, trigger: 'blur', message: '请输入密码' }
+        ]
+      }
+    }
   },
-  beforeRouteEnter(to, from, next) {
-    next((vm) => {
-      vm.$store.dispatch("userSetting/getInfo").then((data) => {
-        vm.form = data;
-      });
-    });
+  // beforeRouteEnter(to, from, next) {
+  //   next((vm) => {
+  //     vm.$store.dispatch('userSetting/getInfo').then((data) => {
+  //       vm.form = data
+  //     })
+  //   })
+  // },
+  created() {
+    this.$store.dispatch('userSetting/getInfo').then((data) => {
+      this.form = data
+    })
   },
   methods: {
     uploadImg(data) {
-      var formdata = new FormData();
-      formdata.append("pictureFile", data);
-      this.$store.dispatch("userSetting/updateInfo", formdata).then((data) => {
+      var formdata = new FormData()
+      formdata.append('pictureFile', data)
+      this.$store.dispatch('userSetting/updateAvatar', formdata).then((data) => {
         this.$message({
-          type: "success",
+          type: 'success',
           message: data
-        });
-        this.$store.dispatch("user/getInfo");
-      });
+        })
+        this.$store.dispatch('user/getInfo')
+      })
     },
-    changeUserName() {
-      this.$prompt("请输入用户名", "修改用户名", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+    updateInfo(updateInfo) {
+      const updateKey = this.options[updateInfo]
+      this.$prompt(`请输入${updateKey}`, `修改${updateKey}`, {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /.+/,
+        inputErrorMessage: `${updateKey}不能为空`
       })
         .then(({ value }) => {
-          var formdata = new FormData();
-          formdata.append("user_name", value);
+          var formdata = new FormData()
+          formdata.append(updateInfo, value)
           this.$store
-            .dispatch("userSetting/changeUserName", formdata)
+            .dispatch('userSetting/updateInfo', formdata)
             .then((data) => {
               this.$message({
-                type: "success",
-                message: data,
-              });
-            });
+                type: 'success',
+                message: data
+              })
+              this.$store.dispatch('user/getInfo').then((data) => {
+                this.form = data
+              })
+            })
         })
         .catch(() => {
           this.$message({
-            type: "info",
-            message: "取消输入",
-          });
-        });
+            type: 'info',
+            message: '取消修改'
+          })
+        })
     },
-  },
-};
+    updatePwd() {
+      this.$refs['pwd'].validate((valid) => {
+        if (valid) {
+          this.$confirm('确认修改密码?', '修改密码', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          })
+            .then(({ value }) => {
+              var formdata = new FormData()
+              formdata.append('user_pwd', value)
+              this.$store
+                .dispatch('userSetting/updateInfo', formdata)
+                .then((data) => {
+                  this.$message({
+                    type: 'success',
+                    message: data
+                  })
+                })
+            })
+            .catch(() => {
+              this.$message({
+                type: 'info',
+                message: '取消修改'
+              })
+            })
+        }
+      })
+    },
+    cancelForm() {
+      this.pwdVisible = false
+      this.form.user_pwd = ''
+    }
+  }
+}
 </script>
 <style scoped>
 .user-setting-container {

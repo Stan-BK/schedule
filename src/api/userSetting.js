@@ -16,6 +16,14 @@ export function updateInfo(data) {
   })
 }
 
+export function updateAvatar(data) {
+  return request({
+    url: '/user/web/update_infoHeadProtrait',
+    method: 'post',
+    data
+  })
+}
+
 export function changeUserName(data) {
   return request({
     url: '/user/web/update_info',

@@ -129,7 +129,7 @@
         </el-table>
       </el-main>
     </el-container>
-    <el-dialog title="查询课表" :visible.sync="queryFormShow" width="350px" :center="true">
+    <el-dialog :close-on-click-modal="false" title="查询课表" :visible.sync="queryFormShow" width="350px" :center="true">
       <el-form :model="queryForm" :label-position="'left'">
         <el-form-item label="查询类型" :label-width="formLabelWidth">
           <el-select v-model="queryForm.value" placeholder="请选择" @change="queryForm.input = ''">
@@ -157,7 +157,7 @@
         <el-button type="primary" @click="searchInfo">确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="排课" :visible.sync="paikeFormShow" width="350px" :center="true">
+    <el-dialog :close-on-click-modal="false" title="排课" :visible.sync="paikeFormShow" width="350px" :center="true">
       <el-form ref="paikeForm" :model="paikeForm" :label-position="'left'" :rules="rules">
         <el-form-item label="课程名" :label-width="formLabelWidth" prop="course_name">
           <el-select v-model="paikeForm.course_name" placeholder="请选择" filterable>

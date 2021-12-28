@@ -1,4 +1,4 @@
-import { getInfo, updateInfo, changeUserName } from '@/api/userSetting'
+import { getInfo, updateInfo, updateAvatar, changeUserName } from '@/api/userSetting'
 
 const state = {
   userInfo: {}
@@ -19,6 +19,13 @@ const actions = {
     return new Promise((resolve, reject) => {
       updateInfo(form).then(() => {
         resolve('修改成功')
+      })
+    })
+  },
+  updateAvatar({}, form) {
+    return new Promise((resolve, reject) => {
+      updateAvatar(form).then(() => {
+        resolve('修改头像成功')
       })
     })
   },

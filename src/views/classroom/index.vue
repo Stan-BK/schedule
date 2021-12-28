@@ -70,10 +70,13 @@
               border
               @selection-change="classroomListChange"
             >
-              <el-table-column prop="classroom_id" label="教室id" />
               <el-table-column
                 prop="classroom_name"
                 label="教室名"
+              />
+              <el-table-column
+                prop="classroom_address"
+                label="教室地点"
               />
               <el-table-column
                 prop="classroom_count"
@@ -105,7 +108,7 @@
         </div>
       </el-main>
     </el-container>
-    <el-dialog title="添加新教室" :visible.sync="addFormShow" width="400px">
+    <el-dialog :close-on-click-modal="false" title="添加新教室" :visible.sync="addFormShow" width="400px">
       <el-form ref="addForm" :model="addForm" :rules="rules">
         <el-form-item
           label="教室名"
@@ -133,6 +136,7 @@
       </div>
     </el-dialog>
     <el-dialog
+      :close-on-click-modal="false"
       title="修改教室信息"
       :visible.sync="updateFormShow"
       width="400px"
@@ -163,22 +167,22 @@
         >确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="查找教室" :visible.sync="queryFormShow" width="400px">
+    <el-dialog :close-on-click-modal="false" title="查找教室" :visible.sync="queryFormShow" width="400px">
       <el-form ref="queryForm" :model="queryForm" :rules="rules">
         <el-form-item
-          label="教室id"
+          label="教室地点"
           :label-width="formLabelWidth"
           required
-          prop="classroom_id"
+          prop="classroom_address"
         >
-          <el-input v-model="queryForm.classroom_id" autocomplete="off" />
+          <el-input v-model="queryForm.classroom_address" autocomplete="off" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancelSubmit">取 消</el-button>
         <el-button
           type="primary"
-          @click="selectByClassroomId('queryForm')"
+          @click="selectByClassroomAddress('queryForm')"
         >确 定</el-button>
       </div>
     </el-dialog>
@@ -208,7 +212,7 @@ export default {
         classroom_name: ''
       },
       queryForm: {
-        classroom_id: ''
+        classroom_address: ''
       },
       rules: {
         classroom_id: [
@@ -219,6 +223,9 @@ export default {
         ],
         classroom_name: [
           { required: true, message: '请输入教室名', trigger: 'blur' }
+        ],
+        classroom_address: [
+          { required: true, message: '请输入教室地点', trigger: 'blur' }
         ]
       },
       options: [
@@ -417,15 +424,15 @@ export default {
         }
       })
     },
-    selectByClassroomId(formName) {
+    selectByClassroomAddress(formName) {
       const _self = this
       _self.$refs[formName].validate((valid) => {
         if (valid) {
           const params = {
-            classroom_id: _self.queryForm.classroom_id
+            classroom_address: _self.queryForm.classroom_address
           }
           _self.$store
-            .dispatch('classroom/selectByClassroomId', params)
+            .dispatch('classroom/selectByClassroomAddress', params)
             .then((response) => {
               var newArr = []
               newArr.push(response)
@@ -435,12 +442,6 @@ export default {
                 type: 'success'
               })
               _self.queryFormShow = false
-            })
-            .catch(() => {
-              _self.$message({
-                message: '查找失败',
-                type: 'error'
-              })
             })
           _self.updateFormShow = false
         } else {

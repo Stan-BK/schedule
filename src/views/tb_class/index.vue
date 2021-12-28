@@ -76,7 +76,7 @@
         </div>
       </el-main>
     </el-container>
-    <el-dialog title="添加班级" :visible.sync="addFormShow" width="400px">
+    <el-dialog :close-on-click-modal="false" title="添加班级" :visible.sync="addFormShow" width="400px">
       <el-form ref="addForm" :model="addForm" :rules="rules">
         <el-form-item
           label="班级名"
@@ -111,7 +111,7 @@
         >确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="修改班级信息" :visible.sync="updateFormShow" width="400px">
+    <el-dialog :close-on-click-modal="false" title="修改班级信息" :visible.sync="updateFormShow" width="400px">
       <el-form :model="updateForm" :rules="rules">
         <el-form-item
           label="班级名"
@@ -146,7 +146,7 @@
         >确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="查找班级" :visible.sync="queryFormShow" width="400px">
+    <el-dialog :close-on-click-modal="false" title="查找班级" :visible.sync="queryFormShow" width="400px">
       <el-form ref="queryForm" :model="queryForm" :rules="rules">
         <el-form-item
           label="班级名"

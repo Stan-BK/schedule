@@ -80,7 +80,7 @@
         </div>
       </el-main>
     </el-container>
-    <el-dialog title="添加教师信息" :visible.sync="addFormShow" width="400px">
+    <el-dialog :close-on-click-modal="false" title="添加教师信息" :visible.sync="addFormShow" width="400px">
       <el-form ref="addForm" :model="addForm" :rules="rules">
         <el-form-item
           label="教师名"
@@ -103,6 +103,7 @@
       </div>
     </el-dialog>
     <el-dialog
+      :close-on-click-modal="false"
       title="修改教师信息"
       :visible.sync="updateFormShow"
       width="400px"
@@ -128,15 +129,15 @@
         >确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="查找教师信息" :visible.sync="queryFormShow" width="400px">
+    <el-dialog :close-on-click-modal="false" title="查找教师信息" :visible.sync="queryFormShow" width="400px">
       <el-form ref="queryForm" :model="queryForm" :rules="rules">
         <el-form-item
-          label="教师id"
+          label="教师名"
           :label-width="formLabelWidth"
           required
-          prop="teacher_id"
+          prop="teacher_name"
         >
-          <el-input v-model="queryForm.teacher_id" autocomplete="off" />
+          <el-input v-model="queryForm.teacher_name" autocomplete="off" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -173,7 +174,7 @@ export default {
       updateItem: -1,
       queryFormShow: false,
       queryForm: {
-        teacher_id: null
+        teacher_name: null
       },
       rules: {
         teacher_name: [
@@ -198,26 +199,6 @@ export default {
         this.initShowList(this.teacherList)
       })
       this.$store.dispatch('teacher/getTeacherCount')
-    },
-    searchInfo() {
-      var value = this.value
-      var input = this.input.toString()
-      var searchStr = {}
-      searchStr[value] = input
-      var params = {
-        type: value,
-        searchStr
-      }
-      if (input === '') {
-        this.$message({
-          type: 'warning',
-          message: '未填写查询内容'
-        })
-        return
-      }
-      this.$store.dispatch('class/searchInfo', params).then((response) => {
-        this.initShowList(response)
-      })
     },
     addTeacher(formName) {
       const _self = this
@@ -285,10 +266,10 @@ export default {
       _self.$refs[formName].validate((valid) => {
         if (valid) {
           const params = {
-            teacher_id: _self.queryForm.teacher_id
+            teacher_name: _self.queryForm.teacher_name
           }
           _self.$store
-            .dispatch('teacher/selectByTeacherId', params)
+            .dispatch('teacher/selectByTeacherName', params)
             .then((response) => {
               const res = []
               res.push(response)

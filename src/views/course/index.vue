@@ -90,7 +90,7 @@
         </div>
       </el-main>
     </el-container>
-    <el-dialog title="添加课程" :visible.sync="addFormShow" width="350px" :center="true">
+    <el-dialog :close-on-click-modal="false" title="添加课程" :visible.sync="addFormShow" width="350px" :center="true">
       <el-form ref="addForm" :model="addForm" :label-position="'left'" :rules="rules">
         <el-form-item label="课程名" :label-width="formLabelWidth" required prop="course_name">
           <el-input v-model="addForm.course_name" autocomplete="off" />
@@ -117,7 +117,7 @@
         <el-button type="primary" @click="addCourse('addForm')">确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="查找课程" :visible.sync="queryFormShow" width="350px" :center="true">
+    <el-dialog :close-on-click-modal="false" title="查找课程" :visible.sync="queryFormShow" width="350px" :center="true">
       <el-form ref="queryForm" :model="queryForm" :label-position="'left'" :rules="rules">
         <el-form-item label="课程名" :label-width="formLabelWidth" required prop="course_name">
           <el-input v-model="queryForm.course_name" autocomplete="off" />
@@ -128,7 +128,7 @@
         <el-button type="primary" @click="queryCourse('queryForm')">确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="修改课程" :visible.sync="updateFormShow" width="350px" :center="true">
+    <el-dialog :close-on-click-modal="false" title="修改课程" :visible.sync="updateFormShow" width="350px" :center="true">
       <el-form ref="updateForm" :model="updateForm" :label-position="'left'" :rules="rules">
         <el-form-item label="课程名" :label-width="formLabelWidth" required prop="course_name">
           <el-input v-model="updateForm.course_name" autocomplete="off" />

@@ -1,4 +1,4 @@
-import { getTeacherCount, getTeacherList, addTeacher, updateTeacher, deleteTeacher, selectByTeacherId, exportTeacher } from '@/api/teacher'
+import { getTeacherCount, getTeacherList, addTeacher, updateTeacher, deleteTeacher, selectByTeacherName, exportTeacher } from '@/api/teacher'
 
 const state = {
   teacherCount: 0
@@ -54,9 +54,9 @@ const actions = {
       })
     })
   },
-  selectByTeacherId({ dispatch }, params) {
+  selectByTeacherName({ dispatch }, params) {
     return new Promise((resolve, reject) => {
-      selectByTeacherId(params).then(response => {
+      selectByTeacherName(params).then(response => {
         const { data } = response
         resolve(data.teacher)
       })

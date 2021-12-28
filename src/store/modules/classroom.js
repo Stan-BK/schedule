@@ -1,4 +1,4 @@
-import { getClassroomCount, getClassroomList, addClassroom, deleteClassroom, updateClassroom, selectByClassroomId, deleteClassroomList, exportClassroom } from '@/api/classroom'
+import { getClassroomCount, getClassroomList, addClassroom, deleteClassroom, updateClassroom, selectByClassroomAddress, deleteClassroomList, exportClassroom } from '@/api/classroom'
 
 const state = {
   classroomCount: 0
@@ -64,9 +64,9 @@ const actions = {
       })
     })
   },
-  selectByClassroomId({ commit }, params) {
+  selectByClassroomAddress({ commit }, params) {
     return new Promise((resolve, reject) => {
-      selectByClassroomId(params).then(response => {
+      selectByClassroomAddress(params).then(response => {
         const { data } = response
         resolve(data.classroom)
       }).catch(() => {

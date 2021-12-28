@@ -15,9 +15,9 @@ export function getClassroomList() {
   })
 }
 
-export function selectByClassroomId(data) {
+export function selectByClassroomAddress(data) {
   return request({
-    url: '/classroom/web/selectByClassroomId',
+    url: '/classroom/web/selectByClassroomAddress',
     method: 'put',
     data: qs.stringify(data)
   })

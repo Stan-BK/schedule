@@ -39,9 +39,9 @@ export function updateTeacher(data) {
   })
 }
 
-export function selectByTeacherId(data) {
+export function selectByTeacherName(data) {
   return request({
-    url: '/teacher/web/selectByTeacherId',
+    url: '/teacher/web/selectByTeacherName',
     method: 'put',
     data: qs.stringify(data)
   })

@@ -45,7 +45,7 @@
         </el-table>
       </el-main>
     </el-container>
-    <el-dialog title="注册新用户" :visible.sync="addFormShow" width="400px">
+    <el-dialog :close-on-click-modal="false" title="注册新用户" :visible.sync="addFormShow" width="400px">
       <el-form ref="addForm" :model="addForm" :rules="rules">
         <el-form-item
           label="用户名"

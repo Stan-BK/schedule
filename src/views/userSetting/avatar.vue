@@ -1,48 +1,52 @@
 <template>
   <div class="avatar">
-    <input type="file" class="file" ref="file" @change="chooseAvatar" />
+    <input ref="file" type="file" class="file" @change="chooseAvatar">
     <div :class="src ? 'wrap' : 'shadow'" @click="triggerFile">
-      <img :src="src" alt="" v-if="src" />
+      <img v-if="src" :src="src" alt="">
     </div>
   </div>
 </template>
 <script>
 export default {
-  name: "MyAvatar",
+  name: 'MyAvatar',
   data() {
     return {
-      src: "",
-    };
+      src: ''
+    }
   },
   methods: {
     triggerFile() {
-      this.$refs.file.click();
+      this.$refs.file.click()
     },
     chooseAvatar() {
-      var file = this.$refs.file.files[0];
-      var _self = this;
+      var file = this.$refs.file.files[0]
+      var _self = this
 
-      transformImg();
+      transformImg()
       function transformImg() {
-        var imgType = /^image\//;
+        var imgType = /^image\//
         if (imgType.test(file.type)) {
-          var reader = new FileReader();
-          reader.onload = function (e) {
-            _self.src = e.target.result;
-          };
-          //读取文件内容，返回Base64字符串
-          reader.readAsDataURL(file);
-          _self.$emit("upload", file);
+          var reader = new FileReader()
+          reader.onload = function(e) {
+            _self.src = e.target.result
+          }
+          // 读取文件内容，返回Base64字符串
+          reader.readAsDataURL(file)
+          _self.$emit('upload', file)
         } else {
-          _self.src = "";
-          _self.$message("只支持上传图片类型");
+          _self.src = ''
+          _self.$message('只支持上传图片类型')
         }
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 <style scoped>
+.avatar {
+  width: 100px !important;
+  height: 100px !important;
+}
 .wrap {
   position: relative;
   display: inline-block;

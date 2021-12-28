@@ -65,6 +65,12 @@ service.interceptors.response.use(
           type: 'error',
           duration: 5 * 1000
         })
+      } else if (res.code == 1001) {
+        Message({
+          message: res.data.msg || 'Error',
+          type: 'error',
+          duration: 5 * 1000
+        })
       } else if (res.code == undefined) {
         console.log(res) // 如axios请求中设置了responseType: 'blob', 则axios拦截器会将响应内容处理为blob对象
         // var blob = new Blob([res], {                     // 如响应内容为二进制流，需手动转换为blob对象
