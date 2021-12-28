@@ -29,6 +29,7 @@
                 <el-button
                   :disabled="!confirmForm.input"
                   @click="exportSchedule"
+                  type="primary"
                 >导出课表</el-button>
               </div>
             </el-tooltip>
