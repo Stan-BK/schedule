@@ -302,7 +302,6 @@ export default {
         prev.push(item.classroom_id)
         return prev
       }, [])
-      console.log(arr)
       this.$confirm('确认删除多项?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -387,8 +386,6 @@ export default {
               })
             })
           _self.addFormShow = false
-        } else {
-          console.log('error submit!!')
         }
       })
     },
@@ -419,8 +416,6 @@ export default {
               })
             })
           _self.updateFormShow = false
-        } else {
-          console.log('error submit!!')
         }
       })
     },
@@ -444,8 +439,6 @@ export default {
               _self.queryFormShow = false
             })
           _self.updateFormShow = false
-        } else {
-          console.log('error submit!!')
         }
       })
     },

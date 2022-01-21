@@ -25,7 +25,7 @@ service.interceptors.request.use(
   },
   error => {
     // do something with request error
-    console.log(error) // for debug
+    // console.log(error) // for debug
     return Promise.reject(error)
   }
 )
@@ -72,7 +72,7 @@ service.interceptors.response.use(
           duration: 5 * 1000
         })
       } else if (res.code == undefined) {
-        console.log(res) // 如axios请求中设置了responseType: 'blob', 则axios拦截器会将响应内容处理为blob对象
+        // console.log(res) // 如axios请求中设置了responseType: 'blob', 则axios拦截器会将响应内容处理为blob对象
         // var blob = new Blob([res], {                     // 如响应内容为二进制流，需手动转换为blob对象
         //   type: 'application/msexcel;charset=utf-8'
         // })
@@ -99,7 +99,7 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
+    // console.log('err' + error) // for debug
     Message({
       message: error.message,
       type: 'error',

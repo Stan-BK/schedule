@@ -273,7 +273,6 @@ export default {
             .then((response) => {
               const res = []
               res.push(response)
-              console.log(res)
               _self.initShowList(res)
             })
             .catch((response) => {
@@ -308,8 +307,6 @@ export default {
             })
           })
           _self.updateFormShow = false
-        } else {
-          console.log('error submit!!')
         }
       })
     },

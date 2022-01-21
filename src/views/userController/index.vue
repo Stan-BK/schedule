@@ -236,8 +236,6 @@ export default {
             })
             _self.addFormShow = false
           }
-        } else {
-          console.log('error submit!!')
         }
       })
     },
